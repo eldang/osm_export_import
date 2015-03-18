@@ -57,11 +57,27 @@ Similar to Geofabrik, but focussed on urban areas, so probably not relevant to C
 * There's a pro version available with nightly data updates, more metadata, and presumably faster responses / no/higher rate limits, but the pricing is not listed
 * Doesn't seem to do SQLite or KMZ exports.  Does have the formats we're more likely to use, though.
 
+#### Overpass API
+
+[Overpass API (or OSM3S)](http://wiki.openstreetmap.org/wiki/Overpass_API)
+
+* XML-based API that looks highly customisable
+* Accesses a few mirrors, with soft quotas of 5GB/day
+* Good idea if we're downloading either small areas or a relatively small subset of tags/fields
+* Will hit speed and rate limits if we try to download everything for every country we're interested in
+* Might be good for filling in the gaps from Geofabrik's country extracts - I *think* that countries they don't have extracts for are typically the ones for which there's less data in the first place
+* Two [Python wrappers](http://wiki.openstreetmap.org/wiki/Overpass_API#Python_API) are available
+* Update frequency noted as "Permanent updates" on the OSM wiki.  I *think* this means it's live.
+
 
 
 ### Existing tools to roll our own extracts
 
-We probably don't want to go this route, because it's computationally expensive, but I want to keep track of all options for reference
+*We probably don't want to go this route, because it's computationally expensive, but I want to keep track of all options for reference.*
+
+#### Planet.osm mirror
+
+In case we do end up rolling our own, it's useful to note that there is [one planet.openstreetmap.org mirror](http://ftp5.gwdg.de/pub/misc/openstreetmap/planet.openstreetmap.org/) which publishes changelists, so we might be able to avoid rebuilding from scratch each time.
 
 #### Extractotron
 
@@ -77,6 +93,7 @@ We probably don't want to go this route, because it's computationally expensive,
 
 * Chef / Vagrant cookbook
 * I think it's functionally equivalent to Extractotron
+
 
 
 
