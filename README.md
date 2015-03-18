@@ -69,6 +69,8 @@ Similar to Geofabrik, but focussed on urban areas, so probably not relevant to C
 * Two [Python wrappers](http://wiki.openstreetmap.org/wiki/Overpass_API#Python_API) are available
 * Update frequency noted as "Permanent updates" on the OSM wiki.  I *think* this means it's live data.
 
+There's also [XAPI](http://wiki.openstreetmap.org/wiki/XAPI) which looks simpler but less customisable, and has a 10M element (< 1/3 of California) or 100 square degree request size limit.
+
 #### WeoGeo Market
 
 [WeoGeo Market hosts a special OSM Planet mirror](http://market.weogeo.com/datasets/osm-openstreetmap-planet)
