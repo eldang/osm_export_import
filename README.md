@@ -76,11 +76,11 @@ There's also [XAPI](http://wiki.openstreetmap.org/wiki/XAPI) which looks simpler
 [WeoGeo Market hosts a special OSM Planet mirror](http://market.weogeo.com/datasets/osm-openstreetmap-planet)
 
 * All OSM data is free to download
-* Not instant - puts jobs in a queue.  Jamaica took about 1 minute; a combined area covering Kenya, Tanzania, Uganda, Rwanda and a little overlap into neighbouring countries is taking longer (20 mins so far, and not finished).
+* Not instant - puts jobs in a queue.  Jamaica took about 1 minute; a combined area covering Kenya, Tanzania, Uganda, Rwanda and a little overlap into neighbouring countries is taking longer (30 mins so far, and not finished).
 * Can specify polygons by drawing on a map, uploading a KML file (via the UI), or supplying GeoJSON via the API
 * Claims to update monthly, but at the time of writing the latest update date is ~7 weeks ago
 * UI allows downloading as Shapefiles, GeoJSON, CSV, GBD or FFFS
-* API allows downloading as JSON, XML, WEO (proprietary format?), KML, PDF or CSV
+* API allows downloading as JSON, XML, WEO (looks like an XML schema), KML, PDF or CSV
 * There's a [Python wrapper for the API](http://www.weogeo.com/developer_doc/WeoGeo_API_Wrappers_Python.html) which looks well documented and easy to work with
 
 
@@ -125,9 +125,3 @@ In case we do end up rolling our own, it's useful to note that there is [one pla
 * Can parse `.osm` and `.pbf` files
 * Can output whatever `ogr2ogr` can output, which includes Shapefiles and PostgreSQL
 
-
-
-
-## Links that I haven't looked at yet
-
-http://wiki.openstreetmap.org/wiki/XAPI
