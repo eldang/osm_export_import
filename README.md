@@ -6,9 +6,29 @@ This is a project to find or build a toolchain for automatically getting OpenStr
 
 I hope to find existing tools for this, but am prepared to write whatever parts of the chain I can't find existing work for.
 
+This is for a specific project, which requires rural data and biases my interest towards three regions of sub-Saharan Africa and one in South America.  I am trying to keep it general enough to be more broadly useful, though.
+
 
 
 ## Exporting from OSM
+
+### Recommendations
+
+* Whenever Geofabrik’s extracts match areas we want, we should ingest those.  They’re updated every 24 hours, save a lot of work, and they publish changelists so we can probably avoid reimporting whole countries every time.  I think this covers at least half of the countries we’re interested in.
+
+* For countries they don’t cover (or if we want smaller geographies than whole countries), we have a few options.  None is perfect, but it’s a question of different trade-offs.  I think these three are the best:
+
+1) We ingest whole continents from Geofabrik, and then use the daily changelists to avoid having to repeat all that work after setup.
+Pro: should be relatively straightforward; isn’t huge amounts of data after initial setup.
+Con: Africa and South America are about ¾ GB each, so it’s a lot of storage.  Setup may also be a monster of a job.
+
+2) We use WeoGeo Market to ingest custom areas.
+Pro: relatively easy to work with; no rate or size limits.
+Con: updates are relatively infrequent.  Although it says “monthly”, their OSM data was last updated in late January, and their job scheduler seems slow enough that getting all the areas we need may take a few days after each update.
+
+3) We use the Overpass API to ingest custom areas.
+Pro: data is either live or updated frequently.
+Con: looks less easy to work with than WeoGeo, and has a daily quota - I think if we don’t need each country updated more than weekly we can stay within that quota easily, though.
 
 ### Existing data repositories
 
