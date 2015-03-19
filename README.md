@@ -96,7 +96,7 @@ There's also [XAPI](http://wiki.openstreetmap.org/wiki/XAPI) which looks simpler
 [WeoGeo Market hosts a special OSM Planet mirror](http://market.weogeo.com/datasets/osm-openstreetmap-planet)
 
 * All OSM data is free to download
-* Not instant - puts jobs in a queue.  Jamaica took about 1 minute; a combined area covering Kenya, Tanzania, Uganda, Rwanda and a little overlap into neighbouring countries is taking longer (30 mins so far, and not finished).
+* Not instant - puts jobs in a queue.  Jamaica took about 1 minute; a combined area covering Kenya, Tanzania, Uganda, Rwanda and a little overlap into neighbouring countries took 50 minutes.
 * Can specify polygons by drawing on a map, uploading a KML file (via the UI), or supplying GeoJSON via the API
 * Claims to update monthly, but at the time of writing the latest update date is ~7 weeks ago
 * UI allows downloading as Shapefiles, GeoJSON, CSV, GBD or FFFS
