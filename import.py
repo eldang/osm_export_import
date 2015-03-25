@@ -12,9 +12,9 @@ import config
 
 # Python includes
 import argparse
-from bs4 import BeautifulSoup		# HTML parser
+from bs4 import BeautifulSoup		# HTML parser: pip install beautifulsoup4
 import os
-import requests 								# HTTP interface
+import requests 								# HTTP interface: pip install requests
 import sys
 import time
 
@@ -32,15 +32,13 @@ def main():
 
 # Load password if previously stored, or ask user for it if not found.
 	if os.path.isfile('pw.txt'):
-		infile = open('pw.txt', 'r')
-		args.password = infile.read()
-		infile.close()
+		with open('pw.txt', 'r') as infile:
+			args.password = infile.read()
 		if args.verbose: print "Found previously set password. Delete pw.txt if you need to reset it."
 	else:
 		args.password = raw_input("Enter the password for user " + args.user + " on database " + args.database + ": ")
-		outfile = open('pw.txt', 'w')
-		outfile.write(args.password)
-		outfile.close()
+		with open('pw.txt', 'w') as outfile:
+			outfile.write(args.password)
 
 # Step through requested regions, either kicking off fresh imports or looking for changesets
 	for region in args.regions:
@@ -66,10 +64,14 @@ def fresh_import(region, args):
 	changeset_dir = "http://download.geofabrik.de/" + region + "-updates/000/000/"
 	r = requests.get(changeset_dir)
 	latest = BeautifulSoup(r.text).find_all('a')[-1].get('href').split('.')[0]
-	outfile = open('latest_changeset.txt', 'w')
-	outfile.write(latest)
-	outfile.close
+	with open('latest_changeset.txt', 'w') as outfile:
+		outfile.write(latest)
 # Download the .pbf file
+	pbf_url = "http://download.geofabrik.de/" + region + "-latest.osm.pbf"
+	r = requests.get(pbf_url)
+	with open('mapdata.osm.pbf', 'wb') as outfile:
+		for chunk in r.iter_content(100):
+			outfile.write(chunk)
 # Import the file we've just downloaded
 # osm2pgsql -c -d osm_africa -p africa -K -r pbf -s -x -v -H localhost -U postgres -k -P 5433 --flat-nodes africa_flat-nodes -G -W africa-latest.osm.pbf
 # Clean up
