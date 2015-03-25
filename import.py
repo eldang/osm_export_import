@@ -20,39 +20,51 @@ import time
 
 
 def main():
-#	log starting time of run
+#	Log starting time of run
 	starttime = time.time()
 
-# parse arguments
+# Parse arguments
 	args = get_CLI_arguments()
 
-# if we're not in verbose mode, log the starting time so it'll be findable in saved output.
-	if not args.verbose:
-		print time.ctime() + ": Starting run"
-		sys.stdout.flush()
+	print time.ctime() + ": Starting run"
+	sys.stdout.flush()
 
+# Load password if previously stored, or ask user for it if not found.
 	if os.path.isfile('pw.txt'):
 		infile = open('pw.txt', 'r')
 		args.password = infile.read()
 		infile.close()
+		if args.verbose: print "Found previously set password. Delete pw.txt if you need to reset it."
 	else:
 		args.password = raw_input("Enter the password for user " + args.user + " on database " + args.database + ": ")
 		outfile = open('pw.txt', 'w')
 		outfile.write(args.password)
 		outfile.close()
 
+# Step through requested regions, either kicking off fresh imports or looking for changesets
 	for region in args.regions:
-		print region
+		if os.path.isdir(region):
+			if args.verbose: print "Found previous cache for " + region + ". Checking for updates to apply."
+		else:
+			if args.verbose: print "No previous cache found for " + region + ". Starting a fresh import."
+			fresh_import(region, args)
 
-# 1) Read in a config file with the database parameters and list of region names to fetch from Geofabrik
 # 2) Check if we already have that region in our database, and if not then fetch the full dataset
 # 3) If we do have it, check what the most recently applied changeset was
 # 4) Go through every changeset since that one, downloading, unzipping and applying it
 # 5) Store a reference to the most recently applied changeset, either in a text file in the working directory or a metadata table in the database.
 
 
-# Import:
+
+def fresh_import(region, args):
+	# Make the directory we'll use to store data for this region
+	os.makedirs(region)
+	# Find the latest changelist number and store that
+	# Download the .pbf file
+	# Import the file we've just downloaded
 # osm2pgsql -c -d osm_africa -p africa -K -r pbf -s -x -v -H localhost -U postgres -k -P 5433 --flat-nodes africa_flat-nodes -G -W africa-latest.osm.pbf
+	# Clean up
+	# Immediately call update() in case another changelist dropped while we were downloading
 
 # Apply changelist:
 # wget the changelist
