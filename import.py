@@ -12,10 +12,11 @@ import config
 
 # Python includes
 import argparse
+from bs4 import BeautifulSoup		# HTML parser
 import os
+import requests 								# HTTP interface
 import sys
 import time
-#import urllib
 
 
 
@@ -44,9 +45,10 @@ def main():
 # Step through requested regions, either kicking off fresh imports or looking for changesets
 	for region in args.regions:
 		if os.path.isdir(region):
-			if args.verbose: print "Found previous cache for " + region + ". Checking for updates to apply."
+# TODO: check for actual files before proceeding
+			if args.verbose: print "Found previous data for " + region + ". Checking for updates to apply."
 		else:
-			if args.verbose: print "No previous cache found for " + region + ". Starting a fresh import."
+			if args.verbose: print "No previous data found for " + region + ". Starting a fresh import."
 			fresh_import(region, args)
 
 # 2) Check if we already have that region in our database, and if not then fetch the full dataset
@@ -57,14 +59,22 @@ def main():
 
 
 def fresh_import(region, args):
-	# Make the directory we'll use to store data for this region
+# Make the directory we'll use to store data for this region
 	os.makedirs(region)
-	# Find the latest changelist number and store that
-	# Download the .pbf file
-	# Import the file we've just downloaded
+	os.chdir(region)
+# Find the latest changelist number and store that
+	changeset_dir = "http://download.geofabrik.de/" + region + "-updates/000/000/"
+	r = requests.get(changeset_dir)
+	latest = BeautifulSoup(r.text).find_all('a')[-1].get('href').split('.')[0]
+	outfile = open('latest_changeset.txt', 'w')
+	outfile.write(latest)
+	outfile.close
+# Download the .pbf file
+
+# Import the file we've just downloaded
 # osm2pgsql -c -d osm_africa -p africa -K -r pbf -s -x -v -H localhost -U postgres -k -P 5433 --flat-nodes africa_flat-nodes -G -W africa-latest.osm.pbf
-	# Clean up
-	# Immediately call update() in case another changelist dropped while we were downloading
+# Clean up
+# Immediately call update() in case another changelist dropped while we were downloading
 
 # Apply changelist:
 # wget the changelist
