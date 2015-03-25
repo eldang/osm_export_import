@@ -30,16 +30,6 @@ def main():
 	print time.ctime() + ": Starting run"
 	sys.stdout.flush()
 
-# Load password if previously stored, or ask user for it if not found.
-	if os.path.isfile('pw.txt'):
-		with open('pw.txt', 'r') as infile:
-			args.password = infile.read()
-		if args.verbose: print "Found previously set password. Delete pw.txt if you need to reset it."
-	else:
-		args.password = raw_input("Enter the password for user " + args.user + " on database " + args.database + ": ")
-		with open('pw.txt', 'w') as outfile:
-			outfile.write(args.password)
-
 # Step through requested regions, either kicking off fresh imports or looking for changesets
 	for region in args.regions:
 		if os.path.isdir(region):
