@@ -7,10 +7,10 @@ __name__ = "config"
 
 ### server config
 
-host				= "localhost"
+host				= "localhost"			# -H or --host
 port				= 5433 # 5432 is the postgresql default
-database		= "osm_africa"
-user				= "postgres"
+database		= "osm_africa"		# -d or --database
+user				= "postgres"			# -u or --user
 # password will be stored in the separate pw.txt file, which is created the first time you run import.py
 # unfortunately, osm2pgsql doesn't seem to have a way to specify schemas, so we'll always be creating tables in the public scheme
 

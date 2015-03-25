@@ -31,6 +31,19 @@ def main():
 		print time.ctime() + ": Starting run"
 		sys.stdout.flush()
 
+	if os.path.isfile('pw.txt'):
+		infile = open('pw.txt', 'r')
+		args.password = infile.read()
+		infile.close()
+	else:
+		args.password = raw_input("Enter the password for user " + args.user + " on database " + args.database + ": ")
+		outfile = open('pw.txt', 'w')
+		outfile.write(args.password)
+		outfile.close()
+
+	for region in args.regions:
+		print region
+
 # 1) Read in a config file with the database parameters and list of region names to fetch from Geofabrik
 # 2) Check if we already have that region in our database, and if not then fetch the full dataset
 # 3) If we do have it, check what the most recently applied changeset was
@@ -57,6 +70,10 @@ def get_CLI_arguments():
 
 # optional arguments
 	parser.add_argument("-v", "--verbose", help="output progress reports while working (default is "+str(config.verbose)+")", action="store_true", dest="verbose")
+	parser.add_argument("-H", "--host", help="override the default database host, which is currently: %(default)s", nargs='?', default=config.host, metavar="localhost|URL")
+	parser.add_argument("-p", "--port", help="override the default database port, which is currently: %(default)s", nargs='?', default=config.port)
+	parser.add_argument("-u", "--user", help="override the default database username", nargs='?', default=config.user)
+	parser.add_argument("-d", "--database", help="override the default database name, which is currently: %(default)s", nargs='?', default=config.database)
 
 	args = parser.parse_args()
 
