@@ -70,10 +70,11 @@ def fresh_import(region, args):
 	outfile.write(latest)
 	outfile.close
 # Download the .pbf file
-
 # Import the file we've just downloaded
 # osm2pgsql -c -d osm_africa -p africa -K -r pbf -s -x -v -H localhost -U postgres -k -P 5433 --flat-nodes africa_flat-nodes -G -W africa-latest.osm.pbf
 # Clean up
+	for i in region.split('/'):
+		os.chdir('..')
 # Immediately call update() in case another changelist dropped while we were downloading
 
 # Apply changelist:
