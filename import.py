@@ -40,8 +40,6 @@ def main():
 			print time.ctime() + ": No previous data found for " + region + ". Starting a fresh import."
 			fresh_import(region, args)
 
-# 4) Go through every changeset since that one, downloading, unzipping and applying it
-# 5) Store a reference to the most recently applied changeset, either in a text file in the working directory or a metadata table in the database.
 
 
 
@@ -52,7 +50,7 @@ def fresh_import(region, args):
 # Find the latest changelist number and store that
 	changeset_dir = "http://download.geofabrik.de/" + region + "-updates/000/000/"
 	r = requests.get(changeset_dir)
-	latest = BeautifulSoup(r.text).find_all('a')[-2].get('href')
+	latest = BeautifulSoup(r.text).find_all('a')[-1].get('href').split('.')[0]
 	with open('latest_changeset.txt', 'w') as outfile:
 		outfile.write(changeset_dir+latest)
 # Download the .pbf file
@@ -84,9 +82,11 @@ def fresh_import(region, args):
 
 # Apply changelist:
 # 3) If we do have it, check what the most recently applied changeset was
+# 4) Go through every changeset since that one, downloading, unzipping and applying it
 # wget the changelist
 # gunzip it, then:
 # osm2pgsql -a -d osm_africa -K -s -x -v -H localhost -U postgres -k -P 5433 --flat-nodes africa_flat-nodes -p africa -G -W 738.osc
+# clean up with http://wiki.openstreetmap.org/wiki/User:Stephankn/knowledgebase#Cleanup_of_ways_outside_the_bounding_box
 
 
 
