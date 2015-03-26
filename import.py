@@ -25,23 +25,22 @@ def main():
 #	Log starting time of run
 	starttime = time.time()
 
-# Parse arguments
+# Parse arguments and get stated
 	args = get_CLI_arguments()
-
-	print time.ctime() + ": Starting run"
-	sys.stdout.flush()
+	print_with_timestamp("Starting run.")
+	os.chdir(args.working_directory)
 
 # Step through requested regions, either kicking off fresh imports or looking for changesets
 	for region in args.regions:
 		if os.path.isdir(region):
 # TODO: check for actual files before proceeding
-			print time.ctime() + ": Found previous data for " + region + ". Checking for updates to apply."
+			print_with_timestamp("Found previous data for " + region + ". Checking for updates to apply.")
 			update_import(region, args)
 		else:
-			print time.ctime() + ": No previous data found for " + region + ". Starting a fresh import."
+			print_with_timestamp("No previous data found for " + region + ". Starting a fresh import.")
 			fresh_import(region, args)
 
-	print time.ctime() + ": Run complete."
+	print_with_timestamp("Run complete in " + elapsed_time(starttime) + ".")
 
 
 
@@ -76,15 +75,13 @@ def fresh_import(region, args):
 			subprocess.call(import_cmd, stdout=FNULL, stderr=subprocess.STDOUT)
 # Clean up
 	os.remove('mapdata.osm.pbf')
-	for i in region.split('/'):
-		os.chdir('..')
-	print time.ctime() + ": Initial import of " + region + " complete."
+	os.chdir(args.working_directory)
+	print_with_timestamp("Initial import of " + region + " complete.")
 # Immediately call update_import() in case another changelist dropped while we were downloading
 	update_import(region, args)
 
 
 
-# Apply changelist:
 
 def update_import(region, args):
 # Find the ID of the most recently applied changelist
@@ -122,12 +119,11 @@ def update_import(region, args):
 					subprocess.call(update_cmd, stdout=FNULL, stderr=subprocess.STDOUT)
 # Clean up and report
 			os.remove('changeset.osc')
-			print time.ctime() + ": Applied changelist #" + urlparts[0]
+			print_with_timestamp("Applied changelist #" + urlparts[0])
 			with open('latest_changeset.txt', 'w') as outfile:
 				outfile.write(latest)
 
-	for i in region.split('/'):
-		os.chdir('..')
+	os.chdir(args.working_directory)
 # TODO: clean up db with http://wiki.openstreetmap.org/wiki/User:Stephankn/knowledgebase#Cleanup_of_ways_outside_the_bounding_box
 
 
@@ -141,17 +137,34 @@ def get_CLI_arguments():
 	parser.add_argument("regions", help="required argument: a list of regions to import, e.g. antarctica,australia-oceania/fiji", metavar="region1,region2/subregion2")
 
 # optional arguments
-	parser.add_argument("-v", "--verbose", help="output progress reports while working (default is "+str(config.verbose)+")", action="store_true", dest="verbose")
+	parser.add_argument("-v", "--verbose", help="output progress reports while working (default is "+str(config.verbose)+")", action="store_true")
 	parser.add_argument("-H", "--host", help="override the default database host, which is currently: %(default)s", nargs='?', default=config.host, metavar="localhost|URL")
 	parser.add_argument("-p", "--port", help="override the default database port, which is currently: %(default)s", nargs='?', default=config.port)
 	parser.add_argument("-u", "--user", help="override the default database username", nargs='?', default=config.user)
 	parser.add_argument("-d", "--database", help="override the default database name, which is currently: %(default)s", nargs='?', default=config.database)
+	parser.add_argument("-w", "--working_directory", help="working directory, which defaults to the directory the program is called from (you'll probably need to set this explicitly in a cron job)", nargs='?', default=os.getcwd())
 
 	args = parser.parse_args()
-
-	args.regions = args.regions.split(',') # turn regions string into a list
-
+	args.regions = args.regions.split(',') # turns regions string into a list
 	return args
+
+
+
+
+def print_with_timestamp(msg):
+	print time.ctime() + ": " + msg
+	sys.stdout.flush() # explicitly flushing stdout makes sure that a .out file stays up to date - otherwise it can be hard to keep track of whether a background job is hanging
+
+
+
+
+def elapsed_time(starttime):
+	seconds = time.time() - starttime
+	if seconds < 1: seconds = 1
+	hours = int(seconds / 60 / 60)
+	minutes = int(seconds / 60 - hours * 60)
+	seconds = int(seconds - minutes * 60 - hours * 60 * 60)
+	return str(hours) + " hours, " + str(minutes) + " minutes and " + str(seconds) + " seconds"
 
 
 
