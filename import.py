@@ -14,6 +14,7 @@ import config
 import argparse
 from bs4 import BeautifulSoup		# HTML parser: pip install beautifulsoup4
 import os
+import psycopg2 								# PostgreSQL interface: http://initd.org/psycopg/docs/
 import requests 								# HTTP interface: pip install requests
 import subprocess
 import sys
@@ -24,6 +25,7 @@ import time
 def main():
 #	Log starting time of run
 	starttime = time.time()
+	db_updated = False
 
 # Parse arguments and get stated
 	args = get_CLI_arguments()
@@ -36,9 +38,20 @@ def main():
 # TODO: check for actual files before proceeding
 			print_with_timestamp("Found previous data for " + region + ". Checking for updates to apply.")
 			update_import(region, args)
+			db_updated = True
 		else:
 			print_with_timestamp("No previous data found for " + region + ". Starting a fresh import.")
-			fresh_import(region, args)
+			if fresh_import(region, args) > 0: db_updated = True
+
+	if db_updated:
+		if verbose:
+			print_with_timestamp("Calling VACUUM FULL for final database housekeeping.")
+		conn = psycopg2.connect(host=args.host, port=args.port, database=args.database, user=args.user)
+		conn.set_session(autocommit=True) # needed for VACUUM call
+		cur = conn.cursor()
+		cur.execute("VACUUM FULL;")
+		cur.close()
+		conn.close()
 
 	print_with_timestamp("Run complete in " + elapsed_time(starttime) + ".")
 
@@ -84,6 +97,8 @@ def fresh_import(region, args):
 
 
 def update_import(region, args):
+	applied_changelists = 0
+	prefix = region.replace('/', '_').replace('-', '_')
 # Find the ID of the most recently applied changelist
 	os.chdir(region)
 	with open('latest_changeset.txt', 'r') as infile:
@@ -108,7 +123,7 @@ def update_import(region, args):
 # Call osm2pgsql to apply it
 			update_cmd = ["osm2pgsql", "-a", "-H", args.host, "-P", str(args.port)]
 			update_cmd += ["-d", args.database, "-U", args.user]
-			update_cmd += ["-p", region.replace('/', '_').replace('-', '_')]
+			update_cmd += ["-p", prefix]
 			update_cmd += ["-K", "-s", "-x", "-G"]
 			if args.verbose: update_cmd += ["-v"]
 			update_cmd += ["changeset.osc"]
@@ -120,13 +135,29 @@ def update_import(region, args):
 # Clean up and report
 			os.remove('changeset.osc')
 			print_with_timestamp("Applied changelist #" + urlparts[0])
+			applied_changelists += 1
 			with open('latest_changeset.txt', 'w') as outfile:
 				outfile.write(latest)
 
+# Clean up db as suggested at http://wiki.openstreetmap.org/wiki/User:Stephankn/knowledgebase#Cleanup_of_ways_outside_the_bounding_box
+	if applied_changelists > 0:
+		if verbose:
+			print_with_timestamp("Pruning database nodes orphaned by this session's updates.")
+		conn = psycopg2.connect(host=args.host, port=args.port, database=args.database, user=args.user)
+		cur = conn.cursor()
+		prefix+= '_'
+		cur.execute("DELETE FROM "+prefix+"ways AS w WHERE 0 = (SELECT COUNT(1) FROM "+prefix+"nodes AS n WHERE n.id = ANY(w.nodes));")
+		cur.execute("DELETE FROM "+prefix+"rels AS r WHERE 0 = (SELECT COUNT(1) FROM "+prefix+"nodes AS n WHERE n.id = ANY(r.parts)) AND 0 = (SELECT COUNT(1) FROM "+prefix+"ways AS w WHERE w.id = ANY(r.parts));")
+		cur.execute("REINDEX TABLE "+prefix+"ways;")
+		cur.execute("REINDEX TABLE "+prefix+"rels;")
+		cur.execute("REINDEX TABLE "+prefix+"nodes;")
+		cur.close()
+		conn.close()
+
 	os.chdir(args.working_directory)
-# TODO: clean up db with http://wiki.openstreetmap.org/wiki/User:Stephankn/knowledgebase#Cleanup_of_ways_outside_the_bounding_box
-
-
+	if verbose:
+		print_with_timestamp("Applied " + applied_changelists + " change lists to " + region + " data.")
+	return applied_changelists
 
 
 
