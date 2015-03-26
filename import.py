@@ -15,6 +15,7 @@ import argparse
 from bs4 import BeautifulSoup		# HTML parser: pip install beautifulsoup4
 import os
 import requests 								# HTTP interface: pip install requests
+import subprocess
 import sys
 import time
 
@@ -34,13 +35,11 @@ def main():
 	for region in args.regions:
 		if os.path.isdir(region):
 # TODO: check for actual files before proceeding
-			if args.verbose: print "Found previous data for " + region + ". Checking for updates to apply."
+			print time.ctime() + ": Found previous data for " + region + ". Checking for updates to apply."
 		else:
-			if args.verbose: print "No previous data found for " + region + ". Starting a fresh import."
+			print time.ctime() + ": No previous data found for " + region + ". Starting a fresh import."
 			fresh_import(region, args)
 
-# 2) Check if we already have that region in our database, and if not then fetch the full dataset
-# 3) If we do have it, check what the most recently applied changeset was
 # 4) Go through every changeset since that one, downloading, unzipping and applying it
 # 5) Store a reference to the most recently applied changeset, either in a text file in the working directory or a metadata table in the database.
 
@@ -53,9 +52,9 @@ def fresh_import(region, args):
 # Find the latest changelist number and store that
 	changeset_dir = "http://download.geofabrik.de/" + region + "-updates/000/000/"
 	r = requests.get(changeset_dir)
-	latest = BeautifulSoup(r.text).find_all('a')[-1].get('href').split('.')[0]
+	latest = BeautifulSoup(r.text).find_all('a')[-2].get('href')
 	with open('latest_changeset.txt', 'w') as outfile:
-		outfile.write(latest)
+		outfile.write(changeset_dir+latest)
 # Download the .pbf file
 	pbf_url = "http://download.geofabrik.de/" + region + "-latest.osm.pbf"
 	r = requests.get(pbf_url)
@@ -63,13 +62,28 @@ def fresh_import(region, args):
 		for chunk in r.iter_content(100):
 			outfile.write(chunk)
 # Import the file we've just downloaded
-# osm2pgsql -c -d osm_africa -p africa -K -r pbf -s -x -v -H localhost -U postgres -k -P 5433 --flat-nodes africa_flat-nodes -G -W africa-latest.osm.pbf
+	import_cmd = ["osm2pgsql", "-H", args.host, "-P", str(args.port)]
+	import_cmd += ["-d", args.database, "-U", args.user]
+	import_cmd += ["-p", region.replace('/', '_').replace('-', '_')]
+	import_cmd += ["-K", "-s", "-x", "-G", "-r", "pbf"]
+	if args.verbose: import_cmd += ["-v"]
+	import_cmd += ["mapdata.osm.pbf"]
+	if args.verbose:
+		subprocess.call(import_cmd)
+	else: # suppress osm2pgsql's output
+		with open(os.devnull, 'w') as FNULL:
+			subprocess.call(import_cmd, stdout=FNULL, stderr=subprocess.STDOUT)
 # Clean up
+	os.remove('mapdata.osm.pbf')
 	for i in region.split('/'):
 		os.chdir('..')
+	print time.ctime() + ": Initial import of " + region + " complete."
 # Immediately call update() in case another changelist dropped while we were downloading
 
+
+
 # Apply changelist:
+# 3) If we do have it, check what the most recently applied changeset was
 # wget the changelist
 # gunzip it, then:
 # osm2pgsql -a -d osm_africa -K -s -x -v -H localhost -U postgres -k -P 5433 --flat-nodes africa_flat-nodes -p africa -G -W 738.osc
