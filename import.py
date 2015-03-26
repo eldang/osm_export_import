@@ -36,9 +36,12 @@ def main():
 		if os.path.isdir(region):
 # TODO: check for actual files before proceeding
 			print time.ctime() + ": Found previous data for " + region + ". Checking for updates to apply."
+			update_import(region, args)
 		else:
 			print time.ctime() + ": No previous data found for " + region + ". Starting a fresh import."
 			fresh_import(region, args)
+
+	print time.ctime() + ": Run complete."
 
 
 
@@ -52,7 +55,7 @@ def fresh_import(region, args):
 	r = requests.get(changeset_dir)
 	latest = BeautifulSoup(r.text).find_all('a')[-1].get('href').split('.')[0]
 	with open('latest_changeset.txt', 'w') as outfile:
-		outfile.write(changeset_dir+latest)
+		outfile.write(latest)
 # Download the .pbf file
 	pbf_url = "http://download.geofabrik.de/" + region + "-latest.osm.pbf"
 	r = requests.get(pbf_url)
@@ -60,7 +63,7 @@ def fresh_import(region, args):
 		for chunk in r.iter_content(100):
 			outfile.write(chunk)
 # Import the file we've just downloaded
-	import_cmd = ["osm2pgsql", "-H", args.host, "-P", str(args.port)]
+	import_cmd = ["osm2pgsql", "-c", "-H", args.host, "-P", str(args.port)]
 	import_cmd += ["-d", args.database, "-U", args.user]
 	import_cmd += ["-p", region.replace('/', '_').replace('-', '_')]
 	import_cmd += ["-K", "-s", "-x", "-G", "-r", "pbf"]
@@ -76,17 +79,57 @@ def fresh_import(region, args):
 	for i in region.split('/'):
 		os.chdir('..')
 	print time.ctime() + ": Initial import of " + region + " complete."
-# Immediately call update() in case another changelist dropped while we were downloading
+# Immediately call update_import() in case another changelist dropped while we were downloading
+	update_import(region, args)
 
 
 
 # Apply changelist:
-# 3) If we do have it, check what the most recently applied changeset was
-# 4) Go through every changeset since that one, downloading, unzipping and applying it
-# wget the changelist
-# gunzip it, then:
-# osm2pgsql -a -d osm_africa -K -s -x -v -H localhost -U postgres -k -P 5433 --flat-nodes africa_flat-nodes -p africa -G -W 738.osc
-# clean up with http://wiki.openstreetmap.org/wiki/User:Stephankn/knowledgebase#Cleanup_of_ways_outside_the_bounding_box
+
+def update_import(region, args):
+# Find the ID of the most recently applied changelist
+	os.chdir(region)
+	with open('latest_changeset.txt', 'r') as infile:
+		latest = infile.read()
+
+# Go through every changeset since that one:
+	changeset_dir = "http://download.geofabrik.de/" + region + "-updates/000/000/"
+	r = requests.get(changeset_dir)
+	urls = BeautifulSoup(r.text).find_all('a')
+	for url in urls:
+		urlparts = url.get('href').split('.')
+		if urlparts[-1] == 'gz' and urlparts[0] > latest:
+			changeset_url = changeset_dir + url.get('href')
+			print changeset_url
+# Download the next changeset
+			r = requests.get(changeset_url)
+			with open('changeset.osc.gz', 'wb') as outfile:
+				for chunk in r.iter_content(10):
+					outfile.write(chunk)
+# Unzip it
+			subprocess.call(['gunzip', 'changeset.osc.gz'])
+# Call osm2pgsql to apply it
+			update_cmd = ["osm2pgsql", "-a", "-H", args.host, "-P", str(args.port)]
+			update_cmd += ["-d", args.database, "-U", args.user]
+			update_cmd += ["-p", region.replace('/', '_').replace('-', '_')]
+			update_cmd += ["-K", "-s", "-x", "-G"]
+			if args.verbose: update_cmd += ["-v"]
+			update_cmd += ["changeset.osc"]
+			if args.verbose:
+				subprocess.call(update_cmd)
+			else: # suppress osm2pgsql's output
+				with open(os.devnull, 'w') as FNULL:
+					subprocess.call(update_cmd, stdout=FNULL, stderr=subprocess.STDOUT)
+# Clean up and report
+			os.remove('changeset.osc')
+			print time.ctime() + ": Applied changelist #" + urlparts[0]
+			with open('latest_changeset.txt', 'w') as outfile:
+				outfile.write(latest)
+
+	for i in region.split('/'):
+		os.chdir('..')
+# TODO: clean up db with http://wiki.openstreetmap.org/wiki/User:Stephankn/knowledgebase#Cleanup_of_ways_outside_the_bounding_box
+
 
 
 
