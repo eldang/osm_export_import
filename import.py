@@ -112,7 +112,6 @@ def update_import(region, args):
 		urlparts = url.get('href').split('.')
 		if urlparts[-1] == 'gz' and urlparts[0] > latest:
 			changeset_url = changeset_dir + url.get('href')
-			print changeset_url
 # Download the next changeset
 			r = requests.get(changeset_url)
 			with open('changeset.osc.gz', 'wb') as outfile:
@@ -137,7 +136,7 @@ def update_import(region, args):
 			print_with_timestamp("Applied changelist #" + urlparts[0])
 			applied_changelists += 1
 			with open('latest_changeset.txt', 'w') as outfile:
-				outfile.write(latest)
+				outfile.write(str(int(latest) + applied_changelists))
 
 # Clean up db as suggested at http://wiki.openstreetmap.org/wiki/User:Stephankn/knowledgebase#Cleanup_of_ways_outside_the_bounding_box
 	if applied_changelists > 0:
