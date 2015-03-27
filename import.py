@@ -44,7 +44,7 @@ def main():
 			if fresh_import(region, args) > 0: db_updated = True
 
 	if db_updated:
-		if verbose:
+		if args.verbose:
 			print_with_timestamp("Calling VACUUM FULL for final database housekeeping.")
 		conn = psycopg2.connect(host=args.host, port=args.port, database=args.database, user=args.user)
 		conn.set_session(autocommit=True) # needed for VACUUM call
