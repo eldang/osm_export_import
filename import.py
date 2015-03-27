@@ -117,8 +117,8 @@ def update_import(region, args):
 			with open('changeset.osc.gz', 'wb') as outfile:
 				for chunk in r.iter_content(10):
 					outfile.write(chunk)
-# Unzip it
-			subprocess.call(['gunzip', 'changeset.osc.gz'])
+# Unzip it (-f to force overwriting of any previous changeset.osc left around)
+			subprocess.call(['gunzip', '-f', 'changeset.osc.gz'])
 # Call osm2pgsql to apply it
 			update_cmd = ["osm2pgsql", "-a", "-H", args.host, "-P", str(args.port)]
 			update_cmd += ["-d", args.database, "-U", args.user]
@@ -136,7 +136,7 @@ def update_import(region, args):
 			print_with_timestamp("Applied changelist #" + urlparts[0])
 			applied_changelists += 1
 			with open('latest_changeset.txt', 'w') as outfile:
-				outfile.write(str(int(latest) + applied_changelists))
+				outfile.write(urlparts[0])
 
 # Clean up db as suggested at http://wiki.openstreetmap.org/wiki/User:Stephankn/knowledgebase#Cleanup_of_ways_outside_the_bounding_box
 	if applied_changelists > 0:
