@@ -141,7 +141,7 @@ def update_import(region, args):
 
 # Clean up db as suggested at http://wiki.openstreetmap.org/wiki/User:Stephankn/knowledgebase#Cleanup_of_ways_outside_the_bounding_box
 	if applied_changelists > 0:
-		if verbose:
+		if args.verbose:
 			print_with_timestamp("Pruning database nodes orphaned by this session's updates.")
 		conn = psycopg2.connect(host=args.host, port=args.port, database=args.database, user=args.user)
 		cur = conn.cursor()
@@ -155,7 +155,7 @@ def update_import(region, args):
 		conn.close()
 
 	os.chdir(args.working_directory)
-	if verbose:
+	if args.verbose:
 		print_with_timestamp("Applied " + applied_changelists + " change lists to " + region + " data.")
 	return applied_changelists
 
