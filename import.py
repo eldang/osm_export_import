@@ -156,7 +156,7 @@ def update_import(region, args):
 
 	os.chdir(args.working_directory)
 	if args.verbose:
-		print_with_timestamp("Applied " + applied_changelists + " change lists to " + region + " data.")
+		print_with_timestamp("Applied " + str(applied_changelists) + " change lists to " + region + " data.")
 	return applied_changelists
 
 
