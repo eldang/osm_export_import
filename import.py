@@ -166,7 +166,7 @@ def update_import(region, args):
 
 # Clean up db as suggested at
 # http://wiki.openstreetmap.org/wiki/User:Stephankn/knowledgebase#Cleanup_of_ways_outside_the_bounding_box
-def dbcleanup(args, prefix)
+def dbcleanup(args, prefix):
 	if args.verbose:
 		print_with_timestamp("Pruning database nodes orphaned by recent updates.")
 	conn = psycopg2.connect(host=args.host, port=args.port, database=args.database, user=args.user)
@@ -197,7 +197,7 @@ def get_CLI_arguments():
 	parser.add_argument("-u", "--user", help="override the default database username", nargs='?', default=config.user)
 	parser.add_argument("-d", "--database", help="override the default database name, which is currently: %(default)s", nargs='?', default=config.database)
 	parser.add_argument("-w", "--working_directory", help="working directory, which defaults to the directory the program is called from (you'll probably need to set this explicitly in a cron job)", nargs='?', default=os.getcwd())
-	parser.add_argument("-c", "--clean_interval", help="after applying this many changesets, do the period database cleaning", nargs='?', default=config.clean_interval)
+	parser.add_argument("-c", "--clean_interval", help="after applying this many changesets, do the periodic database cleaning", nargs='?', default=config.clean_interval)
 
 	args = parser.parse_args()
 	args.regions = args.regions.split(',') # turns regions string into a list
