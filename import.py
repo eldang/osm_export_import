@@ -37,13 +37,12 @@ def main():
 		if os.path.isdir(region):
 # TODO: check for actual files before proceeding
 			print_with_timestamp("Found previous data for " + region + ". Checking for updates to apply.")
-			update_import(region, args)
-			db_updated = True
+			args = update_import(region, args)
 		else:
 			print_with_timestamp("No previous data found for " + region + ". Starting a fresh import.")
-			if fresh_import(region, args) > 0: db_updated = True
+			args = fresh_import(region, args)
 
-	if db_updated:
+	if args.vacuum:
 		if args.verbose:
 			print_with_timestamp("Calling VACUUM FULL for final database housekeeping.")
 		conn = psycopg2.connect(host=args.host, port=args.port, database=args.database, user=args.user)
@@ -91,7 +90,8 @@ def fresh_import(region, args):
 	os.chdir(args.working_directory)
 	print_with_timestamp("Initial import of " + region + " complete.")
 # Immediately call update_import() in case another changelist dropped while we were downloading
-	update_import(region, args)
+	args = update_import(region, args)
+	return args
 
 
 
@@ -137,26 +137,46 @@ def update_import(region, args):
 			applied_changelists += 1
 			with open('latest_changeset.txt', 'w') as outfile:
 				outfile.write(urlparts[0])
-
-# Clean up db as suggested at http://wiki.openstreetmap.org/wiki/User:Stephankn/knowledgebase#Cleanup_of_ways_outside_the_bounding_box
-	if applied_changelists > 0:
-		if args.verbose:
-			print_with_timestamp("Pruning database nodes orphaned by this session's updates.")
-		conn = psycopg2.connect(host=args.host, port=args.port, database=args.database, user=args.user)
-		cur = conn.cursor()
-		prefix+= '_'
-		cur.execute("DELETE FROM "+prefix+"ways AS w WHERE 0 = (SELECT COUNT(1) FROM "+prefix+"nodes AS n WHERE n.id = ANY(w.nodes));")
-		cur.execute("DELETE FROM "+prefix+"rels AS r WHERE 0 = (SELECT COUNT(1) FROM "+prefix+"nodes AS n WHERE n.id = ANY(r.parts)) AND 0 = (SELECT COUNT(1) FROM "+prefix+"ways AS w WHERE w.id = ANY(r.parts));")
-		cur.execute("REINDEX TABLE "+prefix+"ways;")
-		cur.execute("REINDEX TABLE "+prefix+"rels;")
-		cur.execute("REINDEX TABLE "+prefix+"nodes;")
-		cur.close()
-		conn.close()
+# Check if it's time to clean up the database
+	if os.path.isfile('changesets_applied_since_cleanup.txt'):
+		with open('changesets_applied_since_cleanup.txt', 'r') as infile:
+			cumulative_changelists = applied_changelists + infile.read()
+	else:
+		cumulative_changelists = applied_changelists
+	if cumulative_changelists >= args.clean_interval:
+		dbcleanup(args, prefix)
+		args.vacuum = True
+		with open('changesets_applied_since_cleanup.txt', 'r') as outfile:
+			outfile.write('0')
+	else:
+		with open('changesets_applied_since_cleanup.txt', 'r') as outfile:
+			outfile.write(cumulative_changelists)
 
 	os.chdir(args.working_directory)
 	if args.verbose:
 		print_with_timestamp("Applied " + str(applied_changelists) + " change lists to " + region + " data.")
-	return applied_changelists
+	return args
+
+
+
+
+# Clean up db as suggested at
+# http://wiki.openstreetmap.org/wiki/User:Stephankn/knowledgebase#Cleanup_of_ways_outside_the_bounding_box
+def dbcleanup(args, prefix)
+	if args.verbose:
+		print_with_timestamp("Pruning database nodes orphaned by recent updates.")
+	conn = psycopg2.connect(host=args.host, port=args.port, database=args.database, user=args.user)
+	cur = conn.cursor()
+	prefix+= '_'
+	cur.execute("DELETE FROM "+prefix+"ways AS w WHERE 0 = (SELECT COUNT(1) FROM "+prefix+"nodes AS n WHERE n.id = ANY(w.nodes));")
+	cur.execute("DELETE FROM "+prefix+"rels AS r WHERE 0 = (SELECT COUNT(1) FROM "+prefix+"nodes AS n WHERE n.id = ANY(r.parts)) AND 0 = (SELECT COUNT(1) FROM "+prefix+"ways AS w WHERE w.id = ANY(r.parts));")
+	cur.execute("REINDEX TABLE "+prefix+"ways;")
+	cur.execute("REINDEX TABLE "+prefix+"rels;")
+	cur.execute("REINDEX TABLE "+prefix+"nodes;")
+	cur.close()
+	conn.close()
+
+
 
 
 
@@ -173,9 +193,11 @@ def get_CLI_arguments():
 	parser.add_argument("-u", "--user", help="override the default database username", nargs='?', default=config.user)
 	parser.add_argument("-d", "--database", help="override the default database name, which is currently: %(default)s", nargs='?', default=config.database)
 	parser.add_argument("-w", "--working_directory", help="working directory, which defaults to the directory the program is called from (you'll probably need to set this explicitly in a cron job)", nargs='?', default=os.getcwd())
+	parser.add_argument("-c", "--clean_interval", help="after applying this many changesets, do the period database cleaning", nargs='?', default=config.clean_interval)
 
 	args = parser.parse_args()
 	args.regions = args.regions.split(',') # turns regions string into a list
+	args.vacuum = False # will programmatically set True as appropriate
 	return args
 
 

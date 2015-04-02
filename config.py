@@ -16,4 +16,9 @@ user				= "postgres"			# -u or --user
 
 
 # Should we give verbose output and wait for acknowledgement from the user before quitting?
-verbose			=	False							# -v or --verbose
+verbose			=	False						# -v or --verbose
+
+
+
+# After how many changesets should we do the database cleanup?
+clean_interval	= 5						# -c or --clean_interval
