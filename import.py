@@ -152,15 +152,14 @@ def update_import(region, args):
 	if cumulative_changelists >= args.clean_interval:
 		dbcleanup(args, prefix)
 		args.vacuum = True
-		with open('changesets_applied_since_cleanup.txt', 'r') as outfile:
+		with open('changesets_applied_since_cleanup.txt', 'w') as outfile:
 			outfile.write('0')
 	else:
-		with open('changesets_applied_since_cleanup.txt', 'r') as outfile:
+		with open('changesets_applied_since_cleanup.txt', 'w') as outfile:
 			outfile.write(cumulative_changelists)
 
 	os.chdir(args.working_directory)
-	if args.verbose:
-		print_with_timestamp("Applied " + str(applied_changelists) + " change lists to " + region + " data.")
+	print_with_timestamp("Applied " + str(applied_changelists) + " change lists to " + region + " data.")
 	return args
 
 
