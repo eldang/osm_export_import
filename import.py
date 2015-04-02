@@ -74,10 +74,12 @@ def fresh_import(region, args):
 		for chunk in r.iter_content(100):
 			outfile.write(chunk)
 # Import the file we've just downloaded
-	import_cmd = ["osm2pgsql", "-c", "-H", args.host, "-P", str(args.port)]
-	import_cmd += ["-d", args.database, "-U", args.user]
-	import_cmd += ["-p", region.replace('/', '_').replace('-', '_')]
-	import_cmd += ["-K", "-s", "-x", "-G", "-r", "pbf"]
+	import_cmd = [
+		"osm2pgsql", "-c", "-H", args.host, "-P", str(args.port),
+		"-d", args.database, "-U", args.user,
+		"-p", region.replace('/', '_').replace('-', '_'),
+		"-K", "-s", "-x", "-G", "-r", "pbf"
+	]
 	if args.verbose: import_cmd += ["-v"]
 	import_cmd += ["mapdata.osm.pbf"]
 	if args.verbose:
@@ -120,10 +122,12 @@ def update_import(region, args):
 # Unzip it (-f to force overwriting of any previous changeset.osc left around)
 			subprocess.call(['gunzip', '-f', 'changeset.osc.gz'])
 # Call osm2pgsql to apply it
-			update_cmd = ["osm2pgsql", "-a", "-H", args.host, "-P", str(args.port)]
-			update_cmd += ["-d", args.database, "-U", args.user]
-			update_cmd += ["-p", prefix]
-			update_cmd += ["-K", "-s", "-x", "-G"]
+			update_cmd = [
+				"osm2pgsql", "-a", "-H", args.host, "-P", str(args.port),
+				"-d", args.database, "-U", args.user,
+				"-p", prefix,
+				"-K", "-s", "-x", "-G"
+			]
 			if args.verbose: update_cmd += ["-v"]
 			update_cmd += ["changeset.osc"]
 			if args.verbose:
