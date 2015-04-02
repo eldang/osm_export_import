@@ -115,6 +115,8 @@ def update_import(region, args):
 		if urlparts[-1] == 'gz' and urlparts[0] > latest:
 			changeset_url = changeset_dir + url.get('href')
 # Download the next changeset
+			if args.verbose:
+				print_with_timestamp("Downloading changeset "+changeset_url)
 			r = requests.get(changeset_url)
 			with open('changeset.osc.gz', 'wb') as outfile:
 				for chunk in r.iter_content(10):
