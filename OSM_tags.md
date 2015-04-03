@@ -123,7 +123,7 @@ This one seems to be all points that are *not* in the Places set. I can't be 100
 
 ### Railways
 
-I'm guessing that this is every line tagged as `railway`, but can't confirm because the OSM viewer we have set up isn't surfacing that tag.
+This corresponds perfectly to all the lines in the raw OSM import tagged as `highway`.
 
 ### Roads
 
