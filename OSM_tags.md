@@ -22,7 +22,7 @@ Polygons, confusingly, encapsulates buildings, businesses, region names, and adm
 Here is the selection of tags available for polygons:
 
 ```
-access, admin_level, aerialway, aeroway, amenity, area, barrier, bicycle, 
+admin_level, aerialway, aeroway, amenity, area, barrier, bicycle, 
 brand, bridge, boundary, building, construction, covered, culvert, 
 cutting, denomination, disused, embankment, foot, "generator:source", 
 harbour, highway, historic, horse, intermittent, junction, landuse, 
@@ -33,13 +33,24 @@ sport, surface, toll, tourism, "tower:type", tracktype, tunnel,
 water, waterway, wetland, width, wood
 ```
 
-There are also **operator** and **name** fields, which are free text.
+There are also address (3 fields all starting with `addr:`, `operator` and `name` fields, which are free text.
 
-For the most part I think it makes sense to filter by the presence of a tag, not its contents.  Here are the few tags which seem worth filtering within:
+For the most part I think it makes sense to filter by the presence of a tag, not its contents.  Here are the few tags which seem worth filtering within, and values that seem relevant to CCRP:
 
-**boundary**:	administrative,
+**access**: describes assorted access restrictions: [list of usual values](https://wiki.openstreetmap.org/wiki/Key:access#Values).
+**boundary**:	`administrative` (filtered by a minimum [admin_level=](https://wiki.openstreetmap.org/wiki/Tag:boundary%3Dadministrative#admin_level)), `protected_area` and `national_park` (probably combined).
+**place**:
 **surface**:	
 
 ### Lines
 
+
+
 ### Roads
+
+
+
+
+## Unresolved questions:
+
+* What is the `access` field in the polygons table?  I *think* it's about where the data came from in the first place, but I'm very unsure of that.
