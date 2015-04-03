@@ -97,5 +97,37 @@ The tagging of roads is rather complicated, but also logical.  The `highway` tag
 
 Roads can also be modified by other tags, such as `bicycle=no`, `oneway=yes`, `surface`, `width` or `access`. I don't think we need to filter by these, but we should include them in any export of roads.
 
+## Correspondence to WeoGeo layers
+
+WeoGeo provide 8 layers, broken down logically rather than by geometry type. Here's what they seem to correspond to in the raw OSM data:
+
+### Buildings
+
+This one corresponds almost exactly to OSM polygons filtered by the presence of the `building` tag. I'm finding a handful of Nairobi buildings in the Geofabrik export that aren't in the Weogeo buildings layer - I suspect this is just because the Geofabrik export is more recent and they've been added since the last Weogeo refresh, which was in January.
+
+### Landuse
+
+This is a subset of OSM polygons, but a superset of polygons tagged with `landuse`. The Nairobi National Park boundary, for example, is not tagged with `landuse` but is included in Weogeo's Landuse layer. `landuse=forest` seems to be entirely missing from Weogeo's data.
+
+### Natural
+
+I'm pretty perplexed by this one!  It seems to include `landuse=forest` (which the OSM Wiki explicitly marks as for managed forests and plantations), and some segments of lines tagged with `waterway`, but nothing like complete waterways.  I would be highly reluctant to rely on this set, because it's unclear why things are left out....
+
+### Places
+
+This one seems to correspond exactly to OSM points tagged with `place`.
+
+### Points
+
+This one seems to be all points that are *not* in the Places set. I can't be 100% sure because I do see other points in the Geofabrik import that aren't in Weogeo, but the proportion of those seems consistent with them simply having been added recently.
+
+### Railways
+
+I'm guessing that this is every line tagged as `railway`, but can't confirm because the OSM viewer we have set up isn't surfacing that tag.
+
+### Roads
+
+This seems to be all the lines tagged as `highway`. As above, there are some in the Geofabrik set that aren't in the Weogeo import, but it's few enough that I think that just reflects the Geofabrik set being more recent.
+
 
 
