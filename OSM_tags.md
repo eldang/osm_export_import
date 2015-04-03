@@ -25,9 +25,15 @@ Polygons, confusingly, encapsulates buildings, businesses, region names, and adm
 
 Lines feels like a somewhat more natural category than polygons, because although they can represent many things they don't contain each other.  The main types that seem relevant are barriers, boundaries, transport links (roads, public transit and railways), and waterways (streams and canals).
 
+### Roads
 
+I think the Roads table is a bit of a distraction. I was hoping it would just be the subset of Lines and Polygons that were tagged with `highway`, but (a) it seems to only include relatively major roads and yet (b) at the same time it includes the occasional non-road line like a light rail route.
 
 ## Tags
+
+For the most part I think it makes sense to filter by the presence of a tag, not its contents.  However, even a presence filter has to either filter out or treat differently values of `tag=no`, because `bicycle=no` clearly does not mean the same thing as `bicycle=yes` (for example)! We should also always include the actual tag content in exports, because it will often be useful for map styling or detail popups.
+
+### Polygons and Lines
 
 Here is the full selection of tags available for polygons and lines:
 
@@ -40,12 +46,10 @@ leisure, lock, man_made, military, motorcar, "natural",
 office, oneway, place, power, power_source, 
 public_transport, railway, ref, religion, route, service, shop, 
 sport, surface, toll, tourism, "tower:type", tracktype, tunnel, 
-water, waterway, wetland, width, wood
+water, waterway, wetland, wood
 ```
 
-There are also address (3 fields all starting with `addr:`, `operator` and `name` fields, which are free text.
-
-For the most part I think it makes sense to filter by the presence of a tag, not its contents.  However, even a presence filter has to either filter out or treat differently values of `tag=no`, because `bicycle=no` clearly does not mean the same thing as `bicycle=yes` (for example)!
+There are also address (3 fields all starting with `addr:`, `operator` and `name` fields, which are free text, and `population` and `width` which are sort-of numeric (sort-of because they can still contain text, so they'll need to be cleaned up to use).
 
 Here are the few tags which seem worth filtering within, and values that seem relevant to CCRP:
 
@@ -57,14 +61,19 @@ Here are the few tags which seem worth filtering within, and values that seem re
 * **surface**: describes surface types. It's more relevant to roads, but presence/absence is meaningless for this one without filtering further: https://wiki.openstreetmap.org/wiki/Key:surface
 * **water** and **waterway**: we may well want to distinguish between natural waterways and canals, and to separate out those waterways also tagged with `intermittent` from the rest.
 
-Note that several other fields also have a long list of values; they're just not things I think we'll want to filter on. I do recommend including the tag values in any export, as they often add useful metadata to individual polygons.
+Note that several other fields also have a long list of values; they're just not things I think we'll want to filter on.
+
+### Points
 
 
 
 ### Roads
 
-https://wiki.openstreetmap.org/wiki/Highways
-https://wiki.openstreetmap.org/wiki/Key:tracktype
+The tagging of roads is rather complicated, but also logical.  The `highway` tag has a hierarchical set of [normal values](https://wiki.openstreetmap.org/wiki/Highways), and then the lowest level there, `highway=track`, is further broken down by the `tracktype` tag, which has [these values](https://wiki.openstreetmap.org/wiki/Key:tracktype).  I think it will be useful to be able to filter by a few different levels on that hierarchy.
+
+Roads can also be modified by other tags, such as `bicycle=no`, `oneway=yes`, `surface` or `access`. I don't think we need to filter by these, but we should include them in any export of roads.
+
+
 
 
 ## Unresolved questions:
