@@ -37,10 +37,10 @@ There are also address (3 fields all starting with `addr:`, `operator` and `name
 
 For the most part I think it makes sense to filter by the presence of a tag, not its contents.  Here are the few tags which seem worth filtering within, and values that seem relevant to CCRP:
 
-**access**: describes assorted access restrictions: [list of usual values](https://wiki.openstreetmap.org/wiki/Key:access#Values).
-**boundary**:	`administrative` (filtered by a minimum [admin_level=](https://wiki.openstreetmap.org/wiki/Tag:boundary%3Dadministrative#admin_level)), `protected_area` and `national_park` (probably combined).
-**place**:
-**surface**:	
+* **access**: describes assorted access restrictions: [list of usual values](https://wiki.openstreetmap.org/wiki/Key:access#Values).
+* **boundary**:	`administrative` (filtered by a minimum [admin_level=](https://wiki.openstreetmap.org/wiki/Tag:boundary%3Dadministrative#admin_level)), `protected_area` and `national_park` (probably combined).
+* **place**:
+* **surface**:	
 
 ### Lines
 
