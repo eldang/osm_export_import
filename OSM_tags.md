@@ -2,7 +2,7 @@
 
 NB: This is based only on analysis of extracts imported from Geofabrik. As far as I know the tags are identical to planet.osm's, but I haven't checked. I think the layer structure is actually defined by osm2pgsql rather than the data source.
 
-I'm starting out by looking at an area including part of Nairobi and rural territory to the East of it - https://www.openstreetmap.org/#map=12/-1.3126/36.9439 - and comparing that map with the data I've imported from Geofabrik and other data imported from WeoGeo.
+I'm starting out by looking at an area including part of Nairobi and rural territory to the East of it - https://www.openstreetmap.org/#map=12/-1.3126/36.9439 - and comparing that map with the data I've imported from Geofabrik's OSM extracts and other data they had prepackaged as Shapefiles.
 
 ## Useful links:
 
@@ -97,17 +97,17 @@ The tagging of roads is rather complicated, but also logical.  The `highway` tag
 
 Roads can also be modified by other tags, such as `bicycle=no`, `oneway=yes`, `surface`, `width` or `access`. I don't think we need to filter by these, but we should include them in any export of roads.
 
-## Correspondence to WeoGeo layers
+## Correspondence to Geofabrik's pre-packaged shapefiles
 
-WeoGeo provide 8 layers, broken down logically rather than by geometry type. Here's what they seem to correspond to in the raw OSM data:
+A shapefile download from Geofabrik is broken down logically rather than by geometry type. Here's what they seem to correspond to in the raw OSM data:
 
 ### Buildings
 
-This one corresponds almost exactly to OSM polygons filtered by the presence of the `building` tag. I'm finding a handful of Nairobi buildings in the Geofabrik export that aren't in the Weogeo buildings layer - I suspect this is just because the Geofabrik export is more recent and they've been added since the last Weogeo refresh, which was in January.
+This one corresponds almost exactly to OSM polygons filtered by the presence of the `building` tag. I'm finding a handful of Nairobi buildings in my OSM export that aren't in the prepackaged buildings layer - I suspect this is just because the shapefiles we're using are older.
 
 ### Landuse
 
-This is a subset of OSM polygons, but a superset of polygons tagged with `landuse`. The Nairobi National Park boundary, for example, is not tagged with `landuse` but is included in Weogeo's Landuse layer. `landuse=forest` seems to be entirely missing from Weogeo's data.
+This is a subset of OSM polygons, but a superset of polygons tagged with `landuse`. The Nairobi National Park boundary, for example, is not tagged with `landuse` but is included in the prepackaged Landuse layer. `landuse=forest` seems to be entirely missing from the prepackaged Landuse layer
 
 ### Natural
 
@@ -119,7 +119,7 @@ This one seems to correspond exactly to OSM points tagged with `place`.
 
 ### Points
 
-This one seems to be all points that are *not* in the Places set. I can't be 100% sure because I do see other points in the Geofabrik import that aren't in Weogeo, but the proportion of those seems consistent with them simply having been added recently.
+This one seems to be all points that are *not* in the Places set. I can't be 100% sure because I do see other points in the OSM import that aren't in the prepackaged layer, but the proportion of those seems consistent with them simply having been added recently.
 
 ### Railways
 
@@ -127,7 +127,7 @@ I'm guessing that this is every line tagged as `railway`, but can't confirm beca
 
 ### Roads
 
-This seems to be all the lines tagged as `highway`. As above, there are some in the Geofabrik set that aren't in the Weogeo import, but it's few enough that I think that just reflects the Geofabrik set being more recent.
+This seems to be all the lines tagged as `highway`. As above, there are some in the OSM import that aren't in the prepackaged shapefile, but it's few enough that I think that just reflects the Geofabrik set being more recent.
 
 
 
