@@ -26,8 +26,8 @@ admin_level, aerialway, aeroway, amenity, area, barrier, bicycle,
 brand, bridge, boundary, building, construction, covered, culvert, 
 cutting, denomination, disused, embankment, foot, "generator:source", 
 harbour, highway, historic, horse, intermittent, junction, landuse, 
-layer, leisure, lock, man_made, military, motorcar, "natural", 
-office, oneway, operator, place, population, power, power_source, 
+leisure, lock, man_made, military, motorcar, "natural", 
+office, oneway, operator, place, power, power_source, 
 public_transport, railway, ref, religion, route, service, shop, 
 sport, surface, toll, tourism, "tower:type", tracktype, tunnel, 
 water, waterway, wetland, width, wood
@@ -39,8 +39,10 @@ For the most part I think it makes sense to filter by the presence of a tag, not
 
 * **access**: describes assorted access restrictions: [list of usual values](https://wiki.openstreetmap.org/wiki/Key:access#Values).
 * **boundary**:	`administrative` (filtered by a minimum [admin_level=](https://wiki.openstreetmap.org/wiki/Tag:boundary%3Dadministrative#admin_level)), `protected_area` and `national_park` (probably combined).
-* **place**:
-* **surface**:	
+* **place**: describes various *types* of settlement, and a hierarchy of place subdivisions: https://wiki.openstreetmap.org/wiki/Places
+* **surface**: describes surface types. It's more relevant to roads, but presence/absence is meaningless for this one without filtering further: https://wiki.openstreetmap.org/wiki/Key:surface
+
+Note that several other fields also have a long list of values; they're just not things I think we'll want to filter on. I do recommend including the tag values in any export, as they often add useful metadata to individual polygons.
 
 ### Lines
 
