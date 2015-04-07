@@ -122,8 +122,10 @@ def update_import(region, args):
 				for chunk in r.iter_content(10):
 					outfile.write(chunk)
 # Unzip it (-f to force overwriting of any previous changeset.osc left around)
+			if args.verbose: print_with_timestamp("Changeset downloaded. Unpacking.")
 			subprocess.call(['gunzip', '-f', 'changeset.osc.gz'])
 # Call osm2pgsql to apply it
+			if args.verbose: print_with_timestamp("Unpacked. Now calling osm2pgsql")
 			update_cmd = [
 				args.osm2pgsql_path, "-a", "-H", args.host, "-P", str(args.port),
 				"-d", args.database, "-U", args.user,
@@ -132,6 +134,7 @@ def update_import(region, args):
 			]
 			if args.verbose: update_cmd += ["-v"]
 			update_cmd += ["changeset.osc"]
+			if args.verbose: print_with_timestamp(update_cmd)
 			if args.verbose:
 				subprocess.call(update_cmd)
 			else: # suppress osm2pgsql's output
