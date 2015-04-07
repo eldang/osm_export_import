@@ -75,7 +75,7 @@ def fresh_import(region, args):
 			outfile.write(chunk)
 # Import the file we've just downloaded
 	import_cmd = [
-		"osm2pgsql", "-c", "-H", args.host, "-P", str(args.port),
+		args.osm2pgsql_path, "-c", "-H", args.host, "-P", str(args.port),
 		"-d", args.database, "-U", args.user,
 		"-p", region.replace('/', '_').replace('-', '_'),
 		"-K", "-s", "-x", "-G", "-r", "pbf"
@@ -125,7 +125,7 @@ def update_import(region, args):
 			subprocess.call(['gunzip', '-f', 'changeset.osc.gz'])
 # Call osm2pgsql to apply it
 			update_cmd = [
-				"osm2pgsql", "-a", "-H", args.host, "-P", str(args.port),
+				args.osm2pgsql_path, "-a", "-H", args.host, "-P", str(args.port),
 				"-d", args.database, "-U", args.user,
 				"-p", prefix,
 				"-K", "-s", "-x", "-G"
@@ -199,6 +199,7 @@ def get_CLI_arguments():
 	parser.add_argument("-d", "--database", help="override the default database name, which is currently: %(default)s", nargs='?', default=config.database)
 	parser.add_argument("-w", "--working_directory", help="working directory, which defaults to the directory the program is called from (you'll probably need to set this explicitly in a cron job)", nargs='?', default=os.getcwd())
 	parser.add_argument("-c", "--clean_interval", help="after applying this many changesets, do the periodic database cleaning", nargs='?', default=config.clean_interval)
+	parser.add_argument("-o", "--osm2pgsql_path", help="full path to the osm2pgsql command as installed on your system (you may need to specify this for cron jobs)", nargs='?', default="osm2pgsql")
 
 	args = parser.parse_args()
 	args.regions = args.regions.split(',') # turns regions string into a list

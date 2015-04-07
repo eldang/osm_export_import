@@ -126,7 +126,6 @@ SELECT
 
 
 -- thinning the data
-
 -- remove poi field because it's always blank
 -- reduce the following fields to boolean because they only have one value:
 	-- TRUE or NULL:
@@ -232,3 +231,5 @@ SELECT
 				st_intersects(st_transform(polygons.way,4326), g.the_geom)
 				AND g.name_0 ilike 'Kenya'
 				AND g.name_1 ilike 'Rift Valley';
+
+				
