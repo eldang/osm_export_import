@@ -13,7 +13,6 @@ import config
 # Python includes
 import argparse
 import os
-import psycopg2 								# PostgreSQL interface: http://initd.org/psycopg/docs/
 import subprocess
 import sys
 import time
@@ -119,7 +118,7 @@ def get_CLI_arguments():
 
 	parser.add_argument("-f", "--output_format", help="format for output, which is $(default)s by default", nargs='?', default=config.output_format)
 
-	parser.add_argument("-b", "--buffer_radius", help="add a buffer of this many metres beyond the specified subset boundary", nargs='?', default=config.buffer_radius)
+	parser.add_argument("-b", "--buffer_radius", help="add a buffer of this many metres beyond the specified subset boundary. WARNING: SQL queries using this are extremely slow.", nargs='?', default=config.buffer_radius)
 
 	parser.add_argument("-s", "--schema", help="database schema where the geographies to subset by are stored", nargs='?', default=config.schema)
 
