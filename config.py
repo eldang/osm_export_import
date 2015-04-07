@@ -5,7 +5,7 @@
 __name__ = "config"
 
 
-### server config
+### shared server config
 host				= "localhost"			# -H or --host
 port				= 5433 # 5432 is the postgresql default
 database		= "osm_africa"		# -d or --database
@@ -20,5 +20,29 @@ verbose			=	False						# -v or --verbose
 
 
 
+## Import-only:
 # After how many changesets should we do the database cleanup?
 clean_interval	= 5						# -c or --clean_interval
+
+
+
+
+## Export-only:
+# schema in which the geographies by which to subset are stored
+# NB: this does NOT control where map data is imported to. See above for why.
+schema			= 'ccrp'					# -s or --schema
+
+# tables and fields in which geographies are stored
+regions_table	=	'ccrp_regions'							# -rt or --regions_table
+region_field	= 'name'											# -rf or --region_field
+
+countries_table	= 'ccrp_countries'					# -ct or --countries_table
+country_field		= 'name'										# -cf or --country_field
+
+provinces_table					=	'ccrp_provinces'	# -pt or --provinces_table
+province_field					=	'name_1'					# -pf pr --province_field
+province_country_field	= 'name_0'					# -pcf or --province_country_field
+
+# output format
+# currently implemented options: 'shp' and 'sqlite'
+output_format	= 'shp'					# -f or --output_format

@@ -43,6 +43,7 @@ SELECT polygons.*
 
 
 -- combining the data types
+-- CAVEAT: I think I need to abandon this approach, because output generation from a GEOMETRYCOLLECTION is problematic.
 -- 3 different geometry types, combined into one GEOMETRYCOLLECTION
 -- note that we have to add "NULL AS x" to each table's select query, where x is each field that exists in one of the other tables but not this one
 
