@@ -213,7 +213,7 @@ def get_CLI_arguments():
 
 
 def print_with_timestamp(msg):
-	print time.ctime() + ": " + msg
+	print time.ctime() + ": " + str(msg)
 	sys.stdout.flush() # explicitly flushing stdout makes sure that a .out file stays up to date - otherwise it can be hard to keep track of whether a background job is hanging
 
 
