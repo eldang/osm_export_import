@@ -61,7 +61,11 @@ def assemble_sql(args):
 		print_with_timestamp("Category not recognised. Must be one of region, country or province.")
 		exit(1)
 
-	joincmd += " as g ON st_intersects(st_transform(d.way,4326), st_buffer(g.the_geom,"+args.buffer_radius+"))"
+	joincmd += " as g ON st_intersects(st_transform(d.way,4326), "
+	if args.buffer_radius in ['0', '0.0']:
+		joincmd += "g.the_geom)"
+	else:
+		joincmd += "st_buffer(g.the_geom,"+args.buffer_radius+"))"
 	joincmd += joinfilters
 
 	sqlcmds = {}
