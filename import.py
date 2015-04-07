@@ -134,7 +134,7 @@ def update_import(region, args):
 			]
 			if args.verbose: update_cmd += ["-v"]
 			update_cmd += ["changeset.osc"]
-			if args.verbose: print_with_timestamp(update_cmd)
+			if args.verbose: print_with_timestamp(str(update_cmd))
 			if args.verbose:
 				subprocess.call(update_cmd)
 			else: # suppress osm2pgsql's output
