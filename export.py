@@ -31,6 +31,14 @@ def main():
 	sqlcmds = assemble_sql(args)
 	ogrcmds = assemble_ogr_cmds(args, sqlcmds)
 
+	for key,cmd in ogrcmds.items():
+		if args.verbose:
+			print_with_timestamp("Exporting "+key)
+			subprocess.call(cmd)
+		else: # suppress ogr2ogr's output
+			with open(os.devnull, 'w') as FNULL:
+				subprocess.call(update_cmd)
+
 	print_with_timestamp("Run complete in " + elapsed_time(starttime) + ".")
 
 
@@ -68,11 +76,11 @@ def assemble_sql(args):
 def assemble_ogr_cmds(args, sqlcmds):
 	ogrcmds = {}
 
-	for key in sqlcmds.keys():
+	for key,sqlcmd in sqlcmds.items():
 		ogrcmds[key] = ["ogr2ogr", "-f"]
 
 		if args.output_format == 'shp':
-			ogrcmds[key] += ['"ESRI Shapefile"']
+			ogrcmds[key] += ['ESRI Shapefile']
 		elif args.output_format in ['spatialite', 'sqlite']:
 			ogrcmds[key] += ["SQLite", '-dsco', 'SPATIALITE=yes']
 		else:
@@ -80,10 +88,8 @@ def assemble_ogr_cmds(args, sqlcmds):
 			exit(2)
 
 		ogrcmds[key] += [args.outfile+"_"+key+"."+args.output_format]
-		ogrcmds[key] += ['PG:"host='+args.host+' user='+args.user+' port='+args.port+' dbname='+args.database+'"']
-		ogrcmds[key] += ['-sql', '"'+sqlcmds[key]+'"']
-
-		print ogrcmds[key]
+		ogrcmds[key] += ['PG:host='+args.host+' user='+args.user+' port='+args.port+' dbname='+args.database]
+		ogrcmds[key] += ['-sql', sqlcmd]
 
 	return ogrcmds
 
@@ -107,7 +113,7 @@ def get_CLI_arguments():
 	parser.add_argument("-u", "--user", help="override the default database username", nargs='?', default=config.user)
 	parser.add_argument("-d", "--database", help="override the default database name, which is currently: %(default)s", nargs='?', default=config.database)
 
-	parser.add_argument("-f", "--output_format", help="format for output", nargs='?', default=config.output_format)
+	parser.add_argument("-f", "--output_format", help="format for output, which is $(default)s by default", nargs='?', default=config.output_format)
 
 	parser.add_argument("-b", "--buffer_radius", help="add a buffer of this many metres beyond the specified subset boundary", nargs='?', default=config.buffer_radius)
 
