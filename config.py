@@ -32,6 +32,9 @@ clean_interval	= 5						# -c or --clean_interval
 # NB: this does NOT control where map data is imported to. See above for why.
 schema			= 'ccrp'					# -s or --schema
 
+# how far beyond the specified boundaries to go (in metres)
+buffer_radius	=	0							# -b or --buffer_radius
+
 # tables and fields in which geographies are stored
 regions_table	=	'ccrp_regions'							# -rt or --regions_table
 region_field	= 'name'											# -rf or --region_field

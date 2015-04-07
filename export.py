@@ -28,9 +28,38 @@ def main():
 	args = get_CLI_arguments()
 	print_with_timestamp("Starting run.")
 
+	sqlcmds = assemble_sql(args)
+	print sqlcmds
 
 	print_with_timestamp("Run complete in " + elapsed_time(starttime) + ".")
 
+
+
+def assemble_sql(args):
+	joincmd = " INNER JOIN "+args.schema+"."
+	if args.category == 'region':
+		joincmd += args.regions_table
+		joinfilters = " AND g."+args.region_field+" ilike '"+args.subset+"';"
+	elif args.category == 'country':
+		joincmd += args.countries_table
+		joinfilters = " AND g."+args.country_field+" ilike '"+args.subset+"';"
+	elif args.category == 'province':
+		joincmd += args.provinces_table
+		joinfilters = " AND g."+args.province_field+" ilike '"+args.subset+"';"
+		if args.province_country_name is not None:
+			joinfilters = " AND g."+args.province_country_field+" ilike '"+args.province_country_name+"'" + joinfilters
+	else:
+		print_with_timestamp("Category not recognised. Must be one of region, country or province.")
+		exit(1)
+	joincmd += " as g ON st_intersects(st_transform(d.way,4326), st_buffer(g.the_geom,"+str(args.buffer_radius)+"))"
+	joincmd += joinfilters
+
+	sqlcmds = {}
+	sqlcmds['lines'] = "SELECT d.* FROM public."+args.prefix+"line AS d" + joincmd
+	sqlcmds['points'] = "SELECT d.* FROM public."+args.prefix+"point AS d" + joincmd
+	sqlcmds['polygons'] = "SELECT d.* FROM public."+args.prefix+"polygon AS d" + joincmd
+
+	return sqlcmds
 
 
 
@@ -41,8 +70,9 @@ def get_CLI_arguments():
 
 # positional arguments
 	parser.add_argument("prefix", help="required argument: the region we are exporting from (e.g. 'africa' or 'south-america')", metavar="region-name")
+	parser.add_argument("category", help="required argument: the geographic level we're subsetting to. Either 'region', 'country' or 'province'.", metavar="region|country|province")
 	parser.add_argument("subset", help="required argument: the region we are subsetting to (e.g. 'kenya' or 'rift valley')", metavar="'subregion name'")
-	parser.add_argument("outfile", help="required argument: file to save output to", metavar="filename.ext")
+	parser.add_argument("outfile", help="required argument: filename stub to save output to (will have data types & extension added)", metavar="filename_with_no_ext")
 
 # optional arguments
 	parser.add_argument("-v", "--verbose", help="output progress reports while working (default is "+str(config.verbose)+")", action="store_true")
@@ -53,6 +83,8 @@ def get_CLI_arguments():
 	parser.add_argument("-d", "--database", help="override the default database name, which is currently: %(default)s", nargs='?', default=config.database)
 
 	parser.add_argument("-f", "--output_format", help="format for output", nargs='?', default=config.output_format)
+
+	parser.add_argument("-b", "--buffer_radius", help="add a buffer of this many metres beyond the specified subset boundary", nargs='?', default=config.buffer_radius)
 
 	parser.add_argument("-s", "--schema", help="database schema where the geographies to subset by are stored", nargs='?', default=config.schema)
 
@@ -65,7 +97,7 @@ def get_CLI_arguments():
 	parser.add_argument("-pt", "--provinces_table", help="database table containing subnatinoal state- or province-level geometries to subset by", nargs='?', default=config.provinces_table)
 	parser.add_argument("-pf", "--province_field", help="state/province name field in that table", nargs='?', default=config.province_field)
 	parser.add_argument("-pcf", "--province_country_field", help="country name field in that table - this only matters if the province name exists in more than one country (though this is not an unusual occurence)", nargs='?', default=config.province_country_field)
-	parser.add_argument("-pcfn", "--province_country_name", help="name of the country that the province we're subsetting by is in. Required if setting --province_country_field; ignored otherwise/", nargs='?', default=config.province_country_field)
+	parser.add_argument("-pcfn", "--province_country_name", help="name of the country that the province we're subsetting by is in. Required if setting --province_country_field; ignored otherwise/", nargs='?', default=None)
 
 
 	args = parser.parse_args()
