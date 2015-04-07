@@ -29,7 +29,7 @@ def main():
 	print_with_timestamp("Starting run.")
 
 	sqlcmds = assemble_sql(args)
-	print sqlcmds
+	ogrcmds = assemble_ogr_cmds(args, sqlcmds)
 
 	print_with_timestamp("Run complete in " + elapsed_time(starttime) + ".")
 
@@ -37,6 +37,7 @@ def main():
 
 def assemble_sql(args):
 	joincmd = " INNER JOIN "+args.schema+"."
+
 	if args.category == 'region':
 		joincmd += args.regions_table
 		joinfilters = " AND g."+args.region_field+" ilike '"+args.subset+"';"
@@ -51,7 +52,8 @@ def assemble_sql(args):
 	else:
 		print_with_timestamp("Category not recognised. Must be one of region, country or province.")
 		exit(1)
-	joincmd += " as g ON st_intersects(st_transform(d.way,4326), st_buffer(g.the_geom,"+str(args.buffer_radius)+"))"
+
+	joincmd += " as g ON st_intersects(st_transform(d.way,4326), st_buffer(g.the_geom,"+args.buffer_radius+"))"
 	joincmd += joinfilters
 
 	sqlcmds = {}
@@ -63,14 +65,37 @@ def assemble_sql(args):
 
 
 
+def assemble_ogr_cmds(args, sqlcmds):
+	ogrcmds = {}
+
+	for key in sqlcmds.keys():
+		ogrcmds[key] = ["ogr2ogr", "-f"]
+
+		if args.output_format == 'shp':
+			ogrcmds[key] += ['"ESRI Shapefile"']
+		elif args.output_format in ['spatialite', 'sqlite']:
+			ogrcmds[key] += ["SQLite", '-dsco', 'SPATIALITE=yes']
+		else:
+			print_with_timestamp("Output format not recognised. Must be one of shp, spatialite or sqlite.")
+			exit(2)
+
+		ogrcmds[key] += [args.outfile+"_"+key+"."+args.output_format]
+		ogrcmds[key] += ['PG:"host='+args.host+' user='+args.user+' port='+args.port+' dbname='+args.database+'"']
+		ogrcmds[key] += ['-sql', '"'+sqlcmds[key]+'"']
+
+		print ogrcmds[key]
+
+	return ogrcmds
+
+
 
 
 def get_CLI_arguments():
 	parser = argparse.ArgumentParser(description="Export OSM data.")
 
 # positional arguments
-	parser.add_argument("prefix", help="required argument: the region we are exporting from (e.g. 'africa' or 'south-america')", metavar="region-name")
-	parser.add_argument("category", help="required argument: the geographic level we're subsetting to. Either 'region', 'country' or 'province'.", metavar="region|country|province")
+	parser.add_argument("prefix", help="required argument: the region we are exporting subsets from (e.g. 'africa' or 'south-america')", metavar="region-name")
+	parser.add_argument("category", help="required argument: the geographic level we're subsetting by. Either 'region', 'country' or 'province'.", metavar="region|country|province")
 	parser.add_argument("subset", help="required argument: the region we are subsetting to (e.g. 'kenya' or 'rift valley')", metavar="'subregion name'")
 	parser.add_argument("outfile", help="required argument: filename stub to save output to (will have data types & extension added)", metavar="filename_with_no_ext")
 
@@ -102,6 +127,8 @@ def get_CLI_arguments():
 
 	args = parser.parse_args()
 	args.prefix = args.prefix.replace('/', '_').replace('-', '_') + "_"
+	args.port = str(args.port)
+	args.buffer_radius = str(args.buffer_radius)
 	return args
 
 
