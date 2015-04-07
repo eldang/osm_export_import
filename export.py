@@ -12,10 +12,8 @@ import config
 
 # Python includes
 import argparse
-from bs4 import BeautifulSoup		# HTML parser: pip install beautifulsoup4
 import os
 import psycopg2 								# PostgreSQL interface: http://initd.org/psycopg/docs/
-import requests 								# HTTP interface: pip install requests
 import subprocess
 import sys
 import time
