@@ -37,7 +37,7 @@ def main():
 			subprocess.call(cmd)
 		else: # suppress ogr2ogr's output
 			with open(os.devnull, 'w') as FNULL:
-				subprocess.call(update_cmd)
+				subprocess.call(cmd, stdout=FNULL, stderr=subprocess.STDOUT)
 
 	print_with_timestamp("Run complete in " + elapsed_time(starttime) + ".")
 
