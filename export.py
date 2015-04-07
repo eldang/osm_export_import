@@ -37,10 +37,11 @@ def main():
 
 
 def get_CLI_arguments():
-	parser = argparse.ArgumentParser(description="Import and/or update OSM data.")
+	parser = argparse.ArgumentParser(description="Export OSM data.")
 
 # positional arguments
-	parser.add_argument("prefix", help="required argument: the region we are exporting from (e.g. 'africa' or 'south-america'", metavar="region-name")
+	parser.add_argument("prefix", help="required argument: the region we are exporting from (e.g. 'africa' or 'south-america')", metavar="region-name")
+	parser.add_argument("subset", help="required argument: the region we are subsetting to (e.g. 'kenya' or 'rift valley')", metavar="'subregion name'")
 	parser.add_argument("outfile", help="required argument: file to save output to", metavar="filename.ext")
 
 # optional arguments
@@ -64,6 +65,7 @@ def get_CLI_arguments():
 	parser.add_argument("-pt", "--provinces_table", help="database table containing subnatinoal state- or province-level geometries to subset by", nargs='?', default=config.provinces_table)
 	parser.add_argument("-pf", "--province_field", help="state/province name field in that table", nargs='?', default=config.province_field)
 	parser.add_argument("-pcf", "--province_country_field", help="country name field in that table - this only matters if the province name exists in more than one country (though this is not an unusual occurence)", nargs='?', default=config.province_country_field)
+	parser.add_argument("-pcfn", "--province_country_name", help="name of the country that the province we're subsetting by is in. Required if setting --province_country_field; ignored otherwise/", nargs='?', default=config.province_country_field)
 
 
 	args = parser.parse_args()
