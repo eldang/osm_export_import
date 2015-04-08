@@ -16,6 +16,7 @@ import os
 import subprocess
 import sys
 import time
+import zipfile
 
 
 
@@ -27,16 +28,26 @@ def main():
 	args = get_CLI_arguments()
 	print_with_timestamp("Starting run.")
 
-	sqlcmds = assemble_sql(args)
-	ogrcmds = assemble_ogr_cmds(args, sqlcmds)
-
+# Call ogr2ogr to produce the output files
+	ogrcmds = assemble_ogr_cmds(args)
 	for key,cmd in ogrcmds.items():
+		print_with_timestamp("Exporting "+key+".")
 		if args.verbose:
-			print_with_timestamp("Exporting "+key)
 			subprocess.call(cmd)
 		else: # suppress ogr2ogr's output
 			with open(os.devnull, 'w') as FNULL:
 				subprocess.call(cmd, stdout=FNULL, stderr=subprocess.STDOUT)
+
+# Package the output up as a ZIP file, and delete the uncompressed files
+	print_with_timestamp("Exports complete. Compressing files.")
+	zname = args.outfile+"."+args.output_format+".zip"
+	with zipfile.ZipFile(zname, 'w') as zip:
+		for fname in os.listdir(os.getcwd()):
+			if fname.startswith(args.outfile+"_"):
+				if args.verbose:
+					print_with_timestamp("Adding "+fname+" to archive "+zname+".zip")
+				zip.write(fname)
+				os.remove(fname)
 
 	print_with_timestamp("Run complete in " + elapsed_time(starttime) + ".")
 
@@ -76,7 +87,8 @@ def assemble_sql(args):
 
 
 
-def assemble_ogr_cmds(args, sqlcmds):
+def assemble_ogr_cmds(args):
+	sqlcmds = assemble_sql(args)
 	ogrcmds = {}
 
 	for key,sqlcmd in sqlcmds.items():
