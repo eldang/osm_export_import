@@ -45,7 +45,7 @@ def main():
 		for fname in os.listdir(os.getcwd()):
 			if fname.startswith(args.outfile+"_"):
 				if args.verbose:
-					print_with_timestamp("Adding "+fname+" to archive "+zname+".zip")
+					print_with_timestamp("Adding "+fname+" to archive "+zname)
 				zip.write(fname)
 				os.remove(fname)
 
