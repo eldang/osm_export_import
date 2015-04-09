@@ -48,4 +48,4 @@ province_country_field	= 'name_0'					# -pcf or --province_country_field
 
 # output format
 # currently implemented options: 'shp' and 'sqlite'
-output_format	= 'shp'					# -f or --output_format
+output_format	= 'sqlite'				# -f or --output_format
