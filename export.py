@@ -56,6 +56,13 @@ def main():
 def assemble_sql(args):
 	joincmd = " INNER JOIN "+args.schema+"."
 
+# only add a buffer if necessary, because it slows execution down massively
+# for some reason	region exports need an st_buffer call even if the buffer size is 0
+	if args.buffer_radius in ['0', '0.0'] and args.category != 'region':
+		geomref = "g.the_geom"
+	else:
+		geomref = "st_buffer(g.the_geom,"+args.buffer_radius+")"
+
 	if args.category == 'region':
 		joincmd += args.regions_table
 		joinfilters = " AND g."+args.region_field+" ilike '"+args.subset+"';"
@@ -71,17 +78,16 @@ def assemble_sql(args):
 		print_with_timestamp("Category not recognised. Must be one of region, country or province.")
 		exit(1)
 
-	joincmd += " as g ON st_intersects(st_transform(d.way,4326), "
-	if args.buffer_radius in ['0', '0.0']:
-		joincmd += "g.the_geom)"
-	else:
-		joincmd += "st_buffer(g.the_geom,"+args.buffer_radius+"))"
-	joincmd += joinfilters
+	joincmd += " as g ON st_intersects(st_transform(d.way,4326), " + geomref + ")"
 
 	sqlcmds = {}
-	sqlcmds['lines'] = "SELECT d.* FROM public."+args.prefix+"line AS d" + joincmd
-	sqlcmds['points'] = "SELECT d.* FROM public."+args.prefix+"point AS d" + joincmd
+	sqlcmds['lines'] = "SELECT d.* FROM public."+args.prefix+"line AS d" + joincmd + joinfilters
+	sqlcmds['points'] = "SELECT d.* FROM public."+args.prefix+"point AS d" + joincmd + joinfilters
 	sqlcmds['polygons'] = "SELECT d.* FROM public."+args.prefix+"polygon AS d" + joincmd
+
+# Extra processing to exclude polygons that border the selection area
+	sqlcmds['polygons'] += " AND NOT st_touches(st_transform(d.way,4326), " + geomref + ")"
+	sqlcmds['polygons'] += joinfilters
 
 	return sqlcmds
 
