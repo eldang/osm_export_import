@@ -46,6 +46,6 @@ provinces_table					=	'ccrp_provinces'	# -pt or --provinces_table
 province_field					=	'name_1'					# -pf pr --province_field
 province_country_field	= 'name_0'					# -pcf or --province_country_field
 
-# output format
+# default output format
 # currently implemented options: 'shp' and 'sqlite'
 output_format	= 'sqlite'				# -f or --output_format
