@@ -95,4 +95,17 @@ Without additional arguments, the script will export three Spatialite files for 
 * `-f shp` will produce shapefiles instead of Spatialite.
 * If exporting a province with a non-unique name, add `-pcfn countryname` to specify which country you want.
 
+## Development
 
+Pull requests welcomed!  Please try to avoid adding dependencies that aren't part of a standard Python install, or make the case for having added one if you do.  Please also follow [PEP8](https://www.python.org/dev/peps/pep-0008/) with the following exceptions:
+
+* 2-space indents.
+* Don't worry about trailing whitespace at the ends of lines or in blank lines.
+* Put at least 4 blank lines between functions.
+
+To automatically check against PEP8 with the rules I disagree with ignored, just do:
+
+```shell
+pip install flake8
+flake8 *.py --ignore=E111,E303,E302,E221,W291,W293
+```
