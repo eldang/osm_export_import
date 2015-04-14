@@ -29,6 +29,7 @@ def main():
 
 # Parse arguments and get stated
   args = get_CLI_arguments()
+  print " " # just to get a newline
   print_with_timestamp("Starting run.")
   os.chdir(args.working_directory)
 
