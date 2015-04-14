@@ -22,11 +22,11 @@ import zipfile
 
 def main():
   # Log starting time of run
+  print_with_timestamp("Starting run.")
   starttime = time.time()
 
 # Parse arguments and get stated
   args = get_CLI_arguments()
-  print_with_timestamp("Starting run.")
 
 # Call ogr2ogr to produce the output files
   ogrcmds = assemble_ogr_cmds(args)
@@ -68,17 +68,17 @@ def assemble_sql(args):
   if args.category == 'region':
     joincmd += args.regions_table
     joinfilters = (
-        " AND g." + args.region_field + " ilike '" + args.subset + "';"
+        " AND g." + args.region_field + " ilike '" + args.subset + "'"
     )
   elif args.category == 'country':
     joincmd += args.countries_table
     joinfilters = (
-        " AND g." + args.country_field + " ilike '" + args.subset + "';"
+        " AND g." + args.country_field + " ilike '" + args.subset + "'"
     )
   elif args.category == 'province':
     joincmd += args.provinces_table
     joinfilters = (
-        " AND g." + args.province_field + " ilike '" + args.subset + "';"
+        " AND g." + args.province_field + " ilike '" + args.subset + "'"
     )
     if args.province_country_name is not None:
       joinfilters = (
@@ -96,24 +96,38 @@ def assemble_sql(args):
       " as g ON st_intersects(st_transform(d.way,4326), " + geomref + ")"
   )
 
-  sqlcmds = {}
-  sqlcmds['lines'] = (
-      "SELECT d.* FROM public." + args.prefix + "line AS d" + 
-      joincmd + joinfilters
-  )
-  sqlcmds['points'] = (
-      "SELECT d.* FROM public." + args.prefix + "point AS d" + 
-      joincmd + joinfilters
-  )
-  sqlcmds['polygons'] = (
-      "SELECT d.* FROM public." + args.prefix + "polygon AS d" + joincmd
-  )
+  sqlcmds = {"lines": "", "points": "", "polygons": ""}
+  first = False
+  for prefix in args.prefix:
+    # If this is not the first prefix, use UNION to combine:
+    if first:
+      for key in sqlcmds.keys():
+        sqlcmds[key] += " UNION "
+    else:
+      first = True
+    
+    sqlcmds['lines'] += (
+        "SELECT d.* FROM public." + prefix + "line AS d" + 
+        joincmd + joinfilters
+    )
+    sqlcmds['points'] += (
+        "SELECT d.* FROM public." + prefix + "point AS d" + 
+        joincmd + joinfilters
+    )
+    sqlcmds['polygons'] += (
+        "SELECT d.* FROM public." + prefix + "polygon AS d" + joincmd
+    )
 
 # Extra processing to exclude polygons that border the selection area
-  sqlcmds['polygons'] += (
-      " AND NOT st_touches(st_transform(d.way,4326), " + geomref + ")"
-  )
-  sqlcmds['polygons'] += joinfilters
+    sqlcmds['polygons'] += (
+        " AND NOT st_touches(st_transform(d.way,4326), " + geomref + ")"
+    )
+    sqlcmds['polygons'] += joinfilters
+
+# Terminate commands
+  for key in sqlcmds.keys():
+    print sqlcmds[key]
+#    sqlcmds[key] += ";"
 
   return sqlcmds
 
@@ -280,7 +294,10 @@ def get_CLI_arguments():
   )
 
   args = parser.parse_args()
-  args.prefix = args.prefix.replace('/', '_').replace('-', '_') + "_"
+  args.prefix = [
+      x.replace('/', '_').replace('-', '_') + "_" 
+      for x in args.prefix.split(',')
+  ]
   args.port = str(args.port)
   args.buffer_radius = str(args.buffer_radius)
   return args
