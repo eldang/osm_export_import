@@ -76,7 +76,7 @@ When making a fresh import, the script also creates a local directory with the s
 
 #### Basic syntax
 
-```shell
+```
 ./export.py database-prefix adminlevel 'subregion name' filename_with_no_extension
 ```
 
@@ -103,9 +103,9 @@ Pull requests welcomed!  Please try to avoid adding dependencies that aren't par
 * Don't worry about trailing whitespace at the ends of lines or in blank lines.
 * Put at least 4 blank lines between functions.
 
-To automatically check against PEP8 with the rules I disagree with ignored, just do:
+To automatically check against PEP8 with the issues above ignored, just do:
 
-```shell
+```
 pip install flake8
 flake8 *.py --ignore=E111,E303,E302,E221,W291,W293
 ```
