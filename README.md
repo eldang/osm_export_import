@@ -95,6 +95,32 @@ Without additional arguments, the script will export three Spatialite files for 
 * `-f shp` will produce shapefiles instead of Spatialite.
 * If exporting a province with a non-unique name, add `-pcfn countryname` to specify which country you want.
 
+### Typical workflow
+
+Schedule imports of two continents to run nightly:
+
+```
+./import.py 'africa,south-america' -c 10 >> import.log &
+```
+
+Export a region:
+
+```
+./export.py africa region 'east & horn of africa' east-africa -f sqlite -v
+```
+
+Export one country:
+
+```
+./export.py africa country 'burkina faso' burkina -f sqlite
+```
+
+Export a single province:
+
+```
+./export.py africa province mwanza tanzania-mwanza -pcfn tanzania -f sqlite -v
+```
+
 ## Development
 
 Pull requests welcomed!  Please try to avoid adding dependencies that aren't part of a standard Python install, or make the case for having added one if you do.  Please also follow [PEP8](https://www.python.org/dev/peps/pep-0008/) with the following exceptions:
