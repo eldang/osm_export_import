@@ -20,10 +20,10 @@ The following Python modules:
 
 ```python
 argparse
-bs4		# HTML parser: pip install beautifulsoup4
+bs4    # HTML parser: pip install beautifulsoup4
 os
-psycopg2		# PostgreSQL interface: http://initd.org/psycopg/docs/
-requests		# HTTP interface: pip install requests
+psycopg2    # PostgreSQL interface: http://initd.org/psycopg/docs/
+requests    # HTTP interface: pip install requests
 subprocess
 sys
 time

@@ -60,7 +60,7 @@ There are also address (3 fields all starting with `addr:`, `operator`, `brand` 
 Here are the tags which seem worth filtering within, and values that seem relevant to CCRP:
 
 * **access**: describes assorted access restrictions: [list of usual values](https://wiki.openstreetmap.org/wiki/Key:access#Values).
-* **boundary**:	`administrative` (filtered by a minimum [admin_level=](https://wiki.openstreetmap.org/wiki/Tag:boundary%3Dadministrative#admin_level)), `protected_area` and `national_park` (probably combined).
+* **boundary**:  `administrative` (filtered by a minimum [admin_level=](https://wiki.openstreetmap.org/wiki/Tag:boundary%3Dadministrative#admin_level)), `protected_area` and `national_park` (probably combined).
 * **landuse**: this one's very messy! But it includes tags for things like farmland, grazing, forestry etc: https://wiki.openstreetmap.org/wiki/Landuse
 * **man_made**: includes `water_tower`, `water_well`, `silo`: https://wiki.openstreetmap.org/wiki/Key:man_made
 * **natural**: values of interest include `water` (i.e. lakes, ponds etc), `wetland`, `spring`, `wood`, `bare_rock`, `scree` and `sand`: https://wiki.openstreetmap.org/wiki/Places
