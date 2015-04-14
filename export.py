@@ -9,6 +9,9 @@ __author__ = "Eldan Goldenberg for TerraGIS & CoreGIS, April 2015"
 # load local config
 import config
 
+# load shared helper functions
+import helpers
+
 
 # Python includes
 import argparse
@@ -22,16 +25,16 @@ import zipfile
 
 def main():
   # Log starting time of run
-  print_with_timestamp("Starting run.")
+  helpers.print_with_timestamp("Starting run.")
   starttime = time.time()
 
-# Parse arguments and get stated
+# Parse arguments and get started
   args = get_CLI_arguments()
 
 # Call ogr2ogr to produce the output files
   ogrcmds = assemble_ogr_cmds(args)
   for key, cmd in ogrcmds.items():
-    print_with_timestamp("Exporting " + key + ".")
+    helpers.print_with_timestamp("Exporting " + key + ".")
     if args.verbose:
       subprocess.call(cmd)
     else:  # suppress ogr2ogr's output
@@ -39,17 +42,21 @@ def main():
         subprocess.call(cmd, stdout=FNULL, stderr=subprocess.STDOUT)
 
 # Package the output up as a ZIP file, and delete the uncompressed files
-  print_with_timestamp("Exports complete. Compressing files.")
+  helpers.print_with_timestamp("Exports complete. Compressing files.")
   zname = args.outfile + "." + args.output_format + ".zip"
   with zipfile.ZipFile(zname, 'w') as zip:
     for fname in os.listdir(os.getcwd()):
       if fname.startswith(args.outfile + "_"):
         if args.verbose:
-          print_with_timestamp("Adding " + fname + " to archive " + zname)
+          helpers.print_with_timestamp(
+              "Adding " + fname + " to archive " + zname
+          )
         zip.write(fname)
         os.remove(fname)
 
-  print_with_timestamp("Run complete in " + elapsed_time(starttime) + ".")
+  helpers.print_with_timestamp(
+      "Run complete in " + helpers.elapsed_time(starttime) + "."
+  )
 
 
 
@@ -87,7 +94,7 @@ def assemble_sql(args):
           joinfilters
       )
   else:
-    print_with_timestamp(
+    helpers.print_with_timestamp(
         "Category not recognised. Must be one of region, country or province."
     )
     exit(1)
@@ -145,7 +152,7 @@ def assemble_ogr_cmds(args):
     elif args.output_format in ['spatialite', 'sqlite']:
       ogrcmds[key] += ["SQLite", '-dsco', 'SPATIALITE=yes']
     else:
-      print_with_timestamp(
+      helpers.print_with_timestamp(
           "Output format not recognised. \
               Must be one of shp, spatialite or sqlite."
       )
@@ -303,30 +310,6 @@ def get_CLI_arguments():
   return args
 
 
-
-
-
-def print_with_timestamp(msg):
-  print time.ctime() + ": " + str(msg)
-  sys.stdout.flush()  
-# explicitly flushing stdout makes sure that a .out file stays up to date
-# otherwise it can be hard to keep track of whether a background job is hanging
-
-
-
-
-def elapsed_time(starttime):
-  seconds = time.time() - starttime
-  if seconds < 1: 
-    seconds = 1
-  hours = int(seconds / 60 / 60)
-  minutes = int(seconds / 60 - hours * 60)
-  seconds = int(seconds - minutes * 60 - hours * 60 * 60)
-  return (
-      str(hours) + " hours, " + 
-      str(minutes) + " minutes and " + 
-      str(seconds) + " seconds"
-  )
 
 
 if __name__ == "__main__":

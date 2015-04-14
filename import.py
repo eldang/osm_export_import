@@ -9,6 +9,9 @@ __author__ = "Eldan Goldenberg for TerraGIS & CoreGIS, March 2015"
 # load local config
 import config
 
+# load shared helper functions
+import helpers
+
 
 # Python includes
 import argparse
@@ -27,10 +30,10 @@ def main():
   # Log starting time of run
   starttime = time.time()
 
-# Parse arguments and get stated
+# Parse arguments and get started
   args = get_CLI_arguments()
   print " "  # just to get a newline
-  print_with_timestamp("Starting run.")
+  helpers.print_with_timestamp("Starting run.")
   os.chdir(args.working_directory)
 
 # Step through requested regions, 
@@ -38,20 +41,20 @@ def main():
   for region in args.regions:
     if os.path.isdir(region):
       # TODO: check for actual files before proceeding
-      print_with_timestamp(
+      helpers.print_with_timestamp(
           "Found previous data for " + region + ". \
           Checking for updates to apply."
       )
       args = update_import(region, args)
     else:
-      print_with_timestamp(
+      helpers.print_with_timestamp(
           "No previous data found for " + region + ". Starting a fresh import."
       )
       args = fresh_import(region, args)
 
   if args.vacuum:
     if args.verbose:
-      print_with_timestamp(
+      helpers.print_with_timestamp(
           "Calling VACUUM FULL for final database housekeeping."
       )
     conn = psycopg2.connect(
@@ -66,7 +69,9 @@ def main():
     cur.close()
     conn.close()
 
-  print_with_timestamp("Run complete in " + elapsed_time(starttime) + ".")
+  helpers.print_with_timestamp(
+      "Run complete in " + helpers.elapsed_time(starttime) + "."
+  )
 
 
 
@@ -107,7 +112,7 @@ def fresh_import(region, args):
 # Clean up
   os.remove('mapdata.osm.pbf')
   os.chdir(args.working_directory)
-  print_with_timestamp("Initial import of " + region + " complete.")
+  helpers.print_with_timestamp("Initial import of " + region + " complete.")
 # Immediately call update_import() in case another changelist dropped while 
 # we were downloading
   args = update_import(region, args)
@@ -136,18 +141,18 @@ def update_import(region, args):
       changeset_url = changeset_dir + url.get('href')
 # Download the next changeset
       if args.verbose:
-        print_with_timestamp("Downloading changeset " + changeset_url)
+        helpers.print_with_timestamp("Downloading changeset " + changeset_url)
       r = requests.get(changeset_url)
       with open('changeset.osc.gz', 'wb') as outfile:
         for chunk in r.iter_content(10):
           outfile.write(chunk)
 # Unzip it (-f to force overwriting of any previous changeset.osc left around)
       if args.verbose: 
-        print_with_timestamp("Changeset downloaded. Unpacking.")
+        helpers.print_with_timestamp("Changeset downloaded. Unpacking.")
       subprocess.call(['gunzip', '-f', 'changeset.osc.gz'])
 # Call osm2pgsql to apply it
       if args.verbose: 
-        print_with_timestamp("Unpacked. Now calling osm2pgsql")
+        helpers.print_with_timestamp("Unpacked. Now calling osm2pgsql")
       update_cmd = [
           args.osm2pgsql_path, "-a", "-H", args.host, "-P", str(args.port),
           "-d", args.database, "-U", args.user,
@@ -164,7 +169,7 @@ def update_import(region, args):
           subprocess.call(update_cmd, stdout=FNULL, stderr=subprocess.STDOUT)
 # Clean up and report
       os.remove('changeset.osc')
-      print_with_timestamp("Applied changelist #" + urlparts[0])
+      helpers.print_with_timestamp("Applied changelist #" + urlparts[0])
       applied_changelists += 1
       with open('latest_changeset.txt', 'w') as outfile:
         outfile.write(urlparts[0])
@@ -184,7 +189,7 @@ def update_import(region, args):
       outfile.write(str(cumulative_changelists))
 
   os.chdir(args.working_directory)
-  print_with_timestamp(
+  helpers.print_with_timestamp(
       "Applied " + 
       str(applied_changelists) + " change lists to " + 
       region + " data."
@@ -198,7 +203,9 @@ def update_import(region, args):
 # http://wiki.openstreetmap.org/wiki/User:Stephankn/knowledgebase#Cleanup_of_ways_outside_the_bounding_box
 def dbcleanup(args, prefix):
   if args.verbose:
-    print_with_timestamp("Pruning database nodes orphaned by recent updates.")
+    helpers.print_with_timestamp(
+        "Pruning database nodes orphaned by recent updates."
+    )
   conn = psycopg2.connect(
       host=args.host, 
       port=args.port, 
@@ -297,30 +304,6 @@ def get_CLI_arguments():
   args.vacuum = False  # will programmatically set True as appropriate
   return args
 
-
-
-
-def print_with_timestamp(msg):
-  print time.ctime() + ": " + str(msg)
-  sys.stdout.flush()
-# explicitly flushing stdout makes sure that a .out file stays up to date
-# otherwise it can be hard to keep track of whether a background job is hanging
-
-
-
-
-def elapsed_time(starttime):
-  seconds = time.time() - starttime
-  if seconds < 1: 
-    seconds = 1
-  hours = int(seconds / 60 / 60)
-  minutes = int(seconds / 60 - hours * 60)
-  seconds = int(seconds - minutes * 60 - hours * 60 * 60)
-  return (
-      str(hours) + " hours, " + 
-      str(minutes) + " minutes and " + 
-      str(seconds) + " seconds"
-  )
 
 
 

@@ -40,7 +40,7 @@ You will also need to set up a [.pgpass file](http://www.postgresql.org/docs/9.1
 
 #### Setup
 
-1. Copy both `import.py` and `config.py` to your working directory
+1. Copy `import.py`, `helpers.py` and `config.py` to your working directory
 2. Edit the `### shared server config` block to reflect your PostgreSQL setup
 3. Give yourself execute permission on the script, with `chmod u+x import.py`. This step is optional, but without it you'll always have to explicitly call python to run the script.
 
@@ -68,7 +68,7 @@ When making a fresh import, the script also creates a local directory with the s
 
 #### Setup
 
-1. Copy both `export.py` and `config.py` to your working directory.
+1. Copy `export.py`, `helpers.py` and `config.py` to your working directory.
 2. Give yourself execute permission on the script, with `chmod u+x export.py`. This step is optional, but without it you'll always have to explicitly call python to run the script.
 3. Edit the `### shared server config` block of `config.py` to reflect your PostgreSQL setup (if you're also using `import.py` the same settings should work).
 4. If you don't already have them, create at least one table on your database that contains geometries by which you want to filter output, in a column named `the_geom`, and some kind of unique identifier (name, number, ISO code - it doesn't matter as long as it's unique) for each of those geometries.  *NB: the structure this script was written for has three such tables: one for supra-national regions, one for countries, and one for sub-national provinces. You don't have to copy this, but the wording of the options will make more sense if you have it in mind.*
