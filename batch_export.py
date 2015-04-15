@@ -21,7 +21,7 @@ import argparse
 import os
 import psycopg2                # PostgreSQL interface: 
 #                                 http://initd.org/psycopg/docs/
-import subprocess
+import string
 import sys
 import time
 
@@ -36,10 +36,24 @@ def main():
   args = get_CLI_arguments()
   
   for geography in get_all_geographies(args):
+    key = geography[0].replace("&", "and")
+    key = key.translate(string.maketrans("", ""), string.punctuation)
+    key = key.replace(" ", "-")
+    args.subset = key
     if len(geography) == 1:
-      print geography[0]
+      args.outfile = key.lower()
+      print key
+      helpers.print_with_timestamp("Exporting " + key + ".")
     else:
-      print geography[0] + ", " + geography[1]
+      country = geography[1].replace("&", "and")
+      country = country.translate(string.maketrans("", ""), string.punctuation)
+      country = country.replace(" ", "-")
+      args.subset = key
+      args.outfile = country.lower() + "_" + key.lower()
+      args.province_country_name = country
+      helpers.print_with_timestamp("Exporting " + key + ", " + country + ".")
+
+    export.export(args)
 
   helpers.print_with_timestamp(
       "Run complete in " + helpers.elapsed_time(starttime) + "."
