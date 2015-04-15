@@ -2,11 +2,13 @@
 
 ## Overview
 
-This is a pair of scripts to simplify and automate two Open Street Map related process:
+This is a set of scripts to simplify and automate two Open Street Map related process:
 
-**import.py** is for making a local mirror of one or more geographical areas, and keeping that up to date.
+**[import.py](#importpy)** is for making a local mirror of one or more geographical areas, and keeping that up to date.
 
-**export.py** is for exporting subsets of that local mirror, for smaller geographic areas.
+**[export.py](#importpy)** is for exporting subsets of that local mirror, for smaller geographic areas.]
+
+**[batch_export.py](#batch_exportpy)** is for automating the export of many geographic areas at once.
 
 These were made for a specific project, and design choices will probably reflect that. I have tried to write them in as generally reusable a form as possible. I think **import.py** should be very easy to apply to other cases; **export.py** will need more setup and possibly tinkering. There's more information about the choices made in [background.md](background.md)
 
@@ -95,6 +97,29 @@ Without additional arguments, the script will export three Spatialite files for 
 * `-f shp` will produce shapefiles instead of Spatialite.
 * If exporting a province with a non-unique name, add `-pcfn countryname` to specify which country you want.
 * If for some reason you need to combine geographies from more than one set of imported OSM tables, you can simply turn the `database-prefix` argument into a comma-separated list, like: `./export.py africa,south-america province mwanza malawi-mwanza2 -pcfn malawi -v`.
+
+### batch_export.py
+
+#### Setup
+
+As for [export.py](#exportpy) above, and also include the `batch_export.py` file itself.
+
+#### Basic syntax
+
+```
+./batch_export.py db_prefixes adminlevel
+```
+
+Where:
+
+* `db_prefixes` is either a single prefix created by `import.py` (e.g. `south-america`) or a comma-separated list of them, e.g. `africa,south-america`.  If you have multiple imports, it's easiest to simply include all of them here - irrelevant ones add very little to the run time.
+* `adminlevel` is one of `region`, `country` or `province`
+
+The script will query the database for all the available options at the specified admin level (e.g. every country's name, or every province-country pair), and call `export.py` once for each in turn.
+
+#### Advanced options
+
+`-v` and/or `-f` will be passed to `export.py` if provided.
 
 ### Typical workflow
 

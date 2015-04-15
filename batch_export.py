@@ -50,7 +50,7 @@ def main():
       args.outfile = country.lower() + "_" + name.lower()
       args.province_country_name = geography[1]
       helpers.print_with_timestamp(
-          "Exporting " + geography[1] + ", " + geography[0] + "."
+          "Exporting " + geography[0] + ", " + geography[1] + "."
       )
 
     export.export(args)
