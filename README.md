@@ -40,13 +40,13 @@ You will also need to set up a [.pgpass file](http://www.postgresql.org/docs/9.1
 
 ### import.py
 
-#### Setup
+##### Setup
 
 1. Copy `import.py`, `helpers.py` and `config.py` to your working directory
 2. Edit the `### shared server config` block to reflect your PostgreSQL setup
 3. Give yourself execute permission on the script, with `chmod u+x import.py`. This step is optional, but without it you'll always have to explicitly call python to run the script.
 
-#### Basic syntax
+##### Basic syntax
 
 ```shell
 ./import.py regions
@@ -60,7 +60,7 @@ Where regions is a comma-separated list of geographical area names, in the forma
 
 When making a fresh import, the script also creates a local directory with the same name/structure as Geofabrik's, in which it stores some tiny text files to track progress. As long as you leave this directory in place, the next time you call it for the same region it will be detect that a fresh import is not needed, and apply all the new changelists created since it was last run.
 
-#### Advanced options
+##### Advanced options
 
 * If calling this from a cron job, you may need to specify the working directory, which you can do with the `-w` option, and/or the path to the osm2pgsql command, which you can do with the `-o` option.
 * There is some [routine database cleanup](http://wiki.openstreetmap.org/wiki/User:Stephankn/knowledgebase#Cleanup_of_ways_outside_the_bounding_box) that should be done from time to time, but is also very time consuming.  The `-c` option specifies how many changelists to apply between doing that cleanup.  Larger values save time, but potentially at the cost of storage space.
@@ -68,7 +68,7 @@ When making a fresh import, the script also creates a local directory with the s
 
 ### export.py
 
-#### Setup
+##### Setup
 
 1. Copy `export.py`, `helpers.py` and `config.py` to your working directory.
 2. Give yourself execute permission on the script, with `chmod u+x export.py`. This step is optional, but without it you'll always have to explicitly call python to run the script.
@@ -76,7 +76,7 @@ When making a fresh import, the script also creates a local directory with the s
 4. If you don't already have them, create at least one table on your database that contains geometries by which you want to filter output, in a column named `the_geom`, and some kind of unique identifier (name, number, ISO code - it doesn't matter as long as it's unique) for each of those geometries.  *NB: the structure this script was written for has three such tables: one for supra-national regions, one for countries, and one for sub-national provinces. You don't have to copy this, but the wording of the options will make more sense if you have it in mind.*
 5. Edit the `## Export-only:` block of `config.py` to reflect the table structure you've just created. `regions_table` is where the script will look for geometries at the `region` administrative level, and `region_field` is the field it will search by. The equivalent goes for countries and provinces, and provinces have an additional field, to specify country names in case of province names that exist in more than one country.
 
-#### Basic syntax
+##### Basic syntax
 
 ```
 ./export.py database-prefix adminlevel 'subregion name' filename_with_no_extension
@@ -91,7 +91,7 @@ Where:
 
 Without additional arguments, the script will export three Spatialite files for the area specified—one containing all lines, one containing all points, and one containing all polygons—and then package them as a single zip archive.
 
-#### Advanced options
+##### Advanced options
 
 * `-v` gives you verbose output. I recommend using this when running the command interactively, and not when scheduling it.
 * `-f shp` will produce shapefiles instead of Spatialite.
@@ -100,11 +100,11 @@ Without additional arguments, the script will export three Spatialite files for 
 
 ### batch_export.py
 
-#### Setup
+##### Setup
 
 As for [export.py](#exportpy) above, and also include the `batch_export.py` file itself.
 
-#### Basic syntax
+##### Basic syntax
 
 ```
 ./batch_export.py db_prefixes adminlevel
@@ -117,7 +117,7 @@ Where:
 
 The script will query the database for all the available options at the specified admin level (e.g. every country's name, or every province-country pair), and call `export.py` once for each in turn.
 
-#### Advanced options
+##### Advanced options
 
 `-v` and/or `-f` will be passed to `export.py` if provided.
 
