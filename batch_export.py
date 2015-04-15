@@ -36,22 +36,22 @@ def main():
   args = get_CLI_arguments()
   
   for geography in get_all_geographies(args):
-    key = geography[0].replace("&", "and")
-    key = key.translate(string.maketrans("", ""), string.punctuation)
-    key = key.replace(" ", "-")
-    args.subset = key
+    name = geography[0].replace("&", "and")
+    name = name.translate(string.maketrans("", ""), string.punctuation)
+    name = name.replace(" ", "-")
+    args.subset = geography[0]
     if len(geography) == 1:
-      args.outfile = key.lower()
-      print key
+      args.outfile = name.lower()
       helpers.print_with_timestamp("Exporting " + key + ".")
     else:
       country = geography[1].replace("&", "and")
       country = country.translate(string.maketrans("", ""), string.punctuation)
       country = country.replace(" ", "-")
-      args.subset = key
-      args.outfile = country.lower() + "_" + key.lower()
-      args.province_country_name = country
-      helpers.print_with_timestamp("Exporting " + key + ", " + country + ".")
+      args.outfile = country.lower() + "_" + name.lower()
+      args.province_country_name = geography[1]
+      helpers.print_with_timestamp(
+          "Exporting " + geography[1] + ", " + geography[0] + "."
+      )
 
     export.export(args)
 
