@@ -147,6 +147,12 @@ Export a single province:
 ./export.py africa province mwanza tanzania-mwanza -pcfn tanzania -f sqlite -v
 ```
 
+Export every country:
+
+```
+./batch_export.py africa,south-america countries
+```
+
 ## Development
 
 Pull requests welcomed!  Please try to avoid adding dependencies that aren't part of a standard Python install, or make the case for having added one if you do.  Please also follow [PEP8](https://www.python.org/dev/peps/pep-0008/) with the following exceptions:
