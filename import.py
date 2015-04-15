@@ -57,17 +57,15 @@ def main():
       helpers.print_with_timestamp(
           "Calling VACUUM FULL for final database housekeeping."
       )
-    conn = psycopg2.connect(
+    with psycopg2.connect(
         host=args.host, 
         port=args.port, 
         database=args.database, 
         user=args.user
-    )
-    conn.set_session(autocommit=True)  # needed for VACUUM call
-    cur = conn.cursor()
-    cur.execute("VACUUM FULL;")
-    cur.close()
-    conn.close()
+    ) as conn:
+      conn.set_session(autocommit=True)  # needed for VACUUM call
+      with conn.cursor() as cur:
+        cur.execute("VACUUM FULL;")
 
   helpers.print_with_timestamp(
       "Run complete in " + helpers.elapsed_time(starttime) + "."
@@ -206,31 +204,29 @@ def dbcleanup(args, prefix):
     helpers.print_with_timestamp(
         "Pruning database nodes orphaned by recent updates."
     )
-  conn = psycopg2.connect(
+  with psycopg2.connect(
       host=args.host, 
       port=args.port, 
       database=args.database, 
       user=args.user
-  )
-  cur = conn.cursor()
-  prefix += '_'
-  cur.execute(
-      "DELETE FROM " + prefix + "ways AS w \
-      WHERE 0 = (SELECT COUNT(1) FROM " + prefix + "nodes AS n \
-      WHERE n.id = ANY(w.nodes));"
-  )
-  cur.execute(
-      "DELETE FROM " + prefix + "rels AS r \
-      WHERE 0 = (SELECT COUNT(1) FROM " + prefix + "nodes AS n \
-      WHERE n.id = ANY(r.parts)) \
-      AND 0 = (SELECT COUNT(1) FROM " + prefix + "ways AS w \
-      WHERE w.id = ANY(r.parts));"
-  )
-  cur.execute("REINDEX TABLE " + prefix + "ways;")
-  cur.execute("REINDEX TABLE " + prefix + "rels;")
-  cur.execute("REINDEX TABLE " + prefix + "nodes;")
-  cur.close()
-  conn.close()
+  ) as conn:
+    with conn.cursor() as cur:
+      prefix += '_'
+      cur.execute(
+          "DELETE FROM " + prefix + "ways AS w \
+          WHERE 0 = (SELECT COUNT(1) FROM " + prefix + "nodes AS n \
+          WHERE n.id = ANY(w.nodes));"
+      )
+      cur.execute(
+          "DELETE FROM " + prefix + "rels AS r \
+          WHERE 0 = (SELECT COUNT(1) FROM " + prefix + "nodes AS n \
+          WHERE n.id = ANY(r.parts)) \
+          AND 0 = (SELECT COUNT(1) FROM " + prefix + "ways AS w \
+          WHERE w.id = ANY(r.parts));"
+      )
+      cur.execute("REINDEX TABLE " + prefix + "ways;")
+      cur.execute("REINDEX TABLE " + prefix + "rels;")
+      cur.execute("REINDEX TABLE " + prefix + "nodes;")
 
 
 
