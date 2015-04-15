@@ -42,7 +42,7 @@ def main():
     args.subset = geography[0]
     if len(geography) == 1:
       args.outfile = name.lower()
-      helpers.print_with_timestamp("Exporting " + key + ".")
+      helpers.print_with_timestamp("Exporting " + geography[0] + ".")
     else:
       country = geography[1].replace("&", "and")
       country = country.translate(string.maketrans("", ""), string.punctuation)
