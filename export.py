@@ -30,8 +30,18 @@ def main():
 
 # Parse arguments and get started
   args = get_CLI_arguments()
+  export(args)
 
-# Call ogr2ogr to produce the output files
+# And we're done, so report the time
+  helpers.print_with_timestamp(
+      "Run complete in " + helpers.elapsed_time(starttime) + "."
+  )
+
+  
+  
+  
+def export(args):
+  # Call ogr2ogr to produce the output files
   ogrcmds = assemble_ogr_cmds(args)
   for key, cmd in ogrcmds.items():
     helpers.print_with_timestamp("Exporting " + key + ".")
@@ -54,10 +64,7 @@ def main():
         zip.write(fname)
         os.remove(fname)
 
-  helpers.print_with_timestamp(
-      "Run complete in " + helpers.elapsed_time(starttime) + "."
-  )
-
+        
 
 
 
@@ -130,11 +137,6 @@ def assemble_sql(args):
         " AND NOT st_touches(st_transform(d.way,4326), " + geomref + ")"
     )
     sqlcmds['polygons'] += joinfilters
-
-# Terminate commands
-  for key in sqlcmds.keys():
-    print sqlcmds[key]
-#    sqlcmds[key] += ";"
 
   return sqlcmds
 
