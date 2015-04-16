@@ -11,6 +11,17 @@ I'm starting out by looking at an area including part of Nairobi and rural terri
 * Mapzen's [So You Want To Use A Metro Extract](https://mapzen.com/blog/metro-extracts-101)
 * Michal Migurski's [openstreetmap in postgres](http://mike.teczno.com/notes/osm-and-postgres.html)
 
+### OSM styles
+
+I'm pretty sure that the way to start is by figuring out the tag sets used in existing OSM styles, so to that end here are some resources I'm finding:
+
+* [MapCSS Examples](https://wiki.openstreetmap.org/wiki/MapCSS/Examples)
+* [PGMapCSS](https://github.com/plepe/pgmapcss) - adapter to process osm2pgsql generated databases with MapCSS. It's all written in Python, so I may well be able to use their parser.
+* [PGMapCSS interactive demo](http://pgmapcss.openstreetbrowser.org/?style=585f5) - lets you try out PGMapCSS selectors and see what they alter.
+* [JOSM Map Styles](https://josm.openstreetmap.de/wiki/Styles) - note the many highly specialised styles in this set.
+* [osm2pgsql's default.style](https://github.com/openstreetmap/osm2pgsql/blob/master/default.style) - I believe this enumerates all the tags that osm2pgsql doesn't ignore.  Doesn't say much about meanings or tag values, though.
+
+
 ## Data structure
 
 The Geofabrik -> osm2pgsql workflow gives us 4 tables that we care about, and 3 temp tables (nodes, rels & ways) that I will ignore. The interesting tables are divided by data type: polygons, lines, roads and points.

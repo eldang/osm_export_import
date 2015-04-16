@@ -129,7 +129,7 @@ Schedule imports of two continents to run nightly:
 ./import.py 'africa,south-america' -c 10 >> import.log &
 ```
 
-Export a region:
+Export a region (NB: in testing, exporting regions seems unworkably slow. I haven't spent time figuring out why because the smaller geographies are more relevant to my needs):
 
 ```
 ./export.py africa region 'east & horn of africa' east-africa -f sqlite -v

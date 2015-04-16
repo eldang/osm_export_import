@@ -234,3 +234,29 @@ SELECT
         AND g.name_1 ilike 'Rift Valley';
 
         
+
+
+
+-- the next few are steps towards enumerating all extant tag value combinations
+
+-- list columns in a table
+SELECT column_name
+FROM information_schema.columns
+WHERE table_schema = 'public'
+AND table_name = 'africa_line';
+
+-- exclude the columns that aren't tags
+SELECT column_name
+FROM information_schema.columns
+WHERE table_schema = 'public'
+AND table_name = 'africa_line'
+AND column_name NOT IN (
+    'osm_id', 'addr:housename', 'addr:housenumber', 'addr:interpolation', 
+    'z_order', 'way_area', 'way'
+);
+
+-- get all unique values for a given tag
+SELECT DISTINCT 'access='||access AS extant_tags FROM africa_line;
+
+
+
