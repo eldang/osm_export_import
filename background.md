@@ -169,3 +169,17 @@ In case we do end up rolling our own, it's useful to note that there is [one pla
 * Command line tool to import OSM data to PostgreSQL databases
 * Can parse `.pbf` files and `.osc` changelists
 * Looks like this will do everything we need, actually
+
+
+
+
+
+## Figuring out apropriate tag lists
+
+### OSM styles
+
+I'm pretty sure that the way to start is by figuring out the tag sets used in existing OSM styles, so to that end here are some resources I'm finding:
+
+* [MapCSS Examples](https://wiki.openstreetmap.org/wiki/MapCSS/Examples)
+* [PGMapCSS](https://github.com/plepe/pgmapcss) - adapter to process osm2pgsql generated databases with MapCSS
+* [JOSM Map Styles](https://josm.openstreetmap.de/wiki/Styles) - note the many highly specialised styles in this set.
