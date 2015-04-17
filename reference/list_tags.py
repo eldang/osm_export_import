@@ -44,6 +44,9 @@ def main():
       for datatype in ["line", "point", "polygon"]:
         helpers.print_with_timestamp("All tag values for " + datatype + "s:")
         seen_tags = []
+        tagnames = []
+        tagvals = {}
+        tagcounts = {}
         for prefix in args.prefix:
           colsquery = "SELECT column_name FROM information_schema.columns"
           colsquery += " WHERE table_schema = 'public'"
@@ -58,6 +61,10 @@ def main():
           cur.execute(colsquery)
           for col in cur.fetchall():
             if col[0] is not None:
+              if col[0] not in tagnames:
+                tagnames.append(col[0])
+                tagvals[col[0]] = []
+                tagcounts[col[0]] = 0
               tagsquery = 'SELECT DISTINCT "' + col[0]
               tagsquery += '" FROM ' + prefix + datatype + ';'
               cur.execute(tagsquery)
@@ -71,8 +78,11 @@ def main():
                     countquery += "='" + val[0].replace("'", "''") + "';"
                     cur.execute(countquery)
                     if int(cur.fetchone()[0]) >= args.threshold:
-                      print tag
-                      seen_tags += tag
+                      if args.verbose:
+                        print tag
+                      seen_tags.append(tag)
+                      tagvals[col[0]].append(val[0])
+                      tagcounts[col[0]] += 1
         helpers.print_with_timestamp(
             "Found " 
             + str(len(seen_tags)) 
@@ -80,6 +90,22 @@ def main():
             + datatype
             + "s."
         )
+        rows = []
+        for i in range (0, max([x[1] for x in tagcounts.items()])):
+          row = {}
+          for key in tagnames:
+            if tagcounts[key] > i:
+              row[key] = tagvals[key][i]
+          rows.append(row)
+        with open(
+            datatype + "_tags_" + str(args.threshold) + ".csv", 
+            'w'
+        ) as outfile:
+          with csv.DictWriter(outfile, fieldnames=tagnames) as writer:
+            writer.writeheader()
+            for row in rows:
+              writer.writerow(row)
+          
   
   helpers.print_with_timestamp(
       "Run complete in " + helpers.elapsed_time(starttime) + "."
