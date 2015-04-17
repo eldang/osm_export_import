@@ -69,7 +69,7 @@ def main():
               tagsquery += '" FROM ' + prefix + datatype + ';'
               cur.execute(tagsquery)
               for val in cur.fetchall():
-                if val[0] is not None:
+                if val is not None and val[0] is not None:
                   tag = col[0] + "=" + val[0]
                   if tag not in seen_tags:
                     countquery = 'SELECT COUNT(osm_id)'
@@ -91,20 +91,21 @@ def main():
             + "s."
         )
         rows = []
-        for i in range (0, max([x[1] for x in tagcounts.items()])):
+        for i in range(0, max([x[1] for x in tagcounts.items()])):
           row = {}
           for key in tagnames:
             if tagcounts[key] > i:
               row[key] = tagvals[key][i]
           rows.append(row)
-        with open(
+        outfile = open(
             datatype + "_tags_" + str(args.threshold) + ".csv", 
             'w'
-        ) as outfile:
-          with csv.DictWriter(outfile, fieldnames=tagnames) as writer:
-            writer.writeheader()
-            for row in rows:
-              writer.writerow(row)
+        )
+        writer = csv.DictWriter(outfile, fieldnames=tagnames)
+        writer.writeheader()
+        for row in rows:
+          writer.writerow(row)
+        outfile.close()
           
   
   helpers.print_with_timestamp(
