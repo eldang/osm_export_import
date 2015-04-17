@@ -44,7 +44,8 @@ def export(args):
   # Call ogr2ogr to produce the output files
   ogrcmds = assemble_ogr_cmds(args)
   for key, cmd in ogrcmds.items():
-    helpers.print_with_timestamp("Exporting " + key + ".")
+    if args.verbose:
+      helpers.print_with_timestamp("Exporting " + key + ".")
     if args.verbose:
       subprocess.call(cmd)
     else:  # suppress ogr2ogr's output
@@ -52,7 +53,8 @@ def export(args):
         subprocess.call(cmd, stdout=FNULL, stderr=subprocess.STDOUT)
 
 # Package the output up as a ZIP file, and delete the uncompressed files
-  helpers.print_with_timestamp("Exports complete. Compressing files.")
+  if args.verbose:
+    helpers.print_with_timestamp("Exports complete. Compressing files.")
   zname = args.outfile + "." + args.output_format + ".zip"
   with zipfile.ZipFile(zname, 'w') as zip:
     for fname in os.listdir(os.getcwd()):
