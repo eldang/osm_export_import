@@ -42,8 +42,8 @@ def main():
     if os.path.isdir(region):
       # TODO: check for actual files before proceeding
       helpers.print_with_timestamp(
-          "Found previous data for " + region + ". \
-          Checking for updates to apply."
+          "Found previous data for " + region
+          + ". Checking for updates to apply."
       )
       args = update_import(region, args)
     else:
