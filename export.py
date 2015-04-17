@@ -41,7 +41,8 @@ def main():
   
   
 def export(args):
-  # Call ogr2ogr to produce the output files
+  os.chdir(args.working_directory)
+# Call ogr2ogr to produce the output files
   ogrcmds = assemble_ogr_cmds(args)
   for key, cmd in ogrcmds.items():
     if args.verbose:
@@ -235,6 +236,13 @@ def get_CLI_arguments():
       help="override the default database name, which is currently: \
           %(default)s", 
       nargs='?', default=config.database
+  )
+  parser.add_argument(
+      "-w", "--working_directory", 
+      help="working directory, which defaults to \
+          the directory the program is called from \
+          (you'll probably need to set this explicitly in a cron job)", 
+      nargs='?', default=os.getcwd()
   )
 
   parser.add_argument(

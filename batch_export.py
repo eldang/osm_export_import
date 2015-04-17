@@ -145,6 +145,13 @@ def get_CLI_arguments():
           %(default)s", 
       nargs='?', default=config.database
   )
+  parser.add_argument(
+      "-w", "--working_directory", 
+      help="working directory, which defaults to \
+          the directory the program is called from \
+          (you'll probably need to set this explicitly in a cron job)", 
+      nargs='?', default=os.getcwd()
+  )
 
   parser.add_argument(
       "-f", "--output_format", 
