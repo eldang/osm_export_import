@@ -96,6 +96,7 @@ Without additional arguments, the script will export three Spatialite files for 
 * `-v` gives you verbose output. I recommend using this when running the command interactively, and not when scheduling it.
 * `-f shp` will produce shapefiles instead of Spatialite.
 * If exporting a province with a non-unique name, add `-pcfn countryname` to specify which country you want.
+* If calling this from a cron job, you may need to specify the working directory, which you can do with the `-w` option.
 * If for some reason you need to combine geographies from more than one set of imported OSM tables, you can simply turn the `database-prefix` argument into a comma-separated list, like: `./export.py africa,south-america province mwanza malawi-mwanza2 -pcfn malawi -v`.
 
 ### batch_export.py
@@ -119,7 +120,7 @@ The script will query the database for all the available options at the specifie
 
 ##### Advanced options
 
-`-v` and/or `-f` will be passed to `export.py` if provided.
+`-v`, `-w` and/or `-f` will be passed to `export.py` if provided.
 
 ### Typical workflow
 
