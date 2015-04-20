@@ -54,10 +54,9 @@ def main():
           colsquery += " AND column_name NOT IN ( \
               'osm_id', \
               'addr:housename', 'addr:housenumber', 'addr:interpolation', \
+              'layer', 'name', 'population', 'ref', 'width', \
               'z_order', 'way_area', 'way' \
           );"
-          # we may also want to exclude:
-          # 'layer', 'name', 'population', 'ref', 'width', \
           cur.execute(colsquery)
           for col in cur.fetchall():
             if col[0] is not None:
