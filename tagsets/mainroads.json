@@ -1,0 +1,33 @@
+{
+  "comment": "Use this to include main national roads only",
+  "includeByValue": [
+    {
+      "tagName": "highway",
+      "values": [
+        "motorway",
+        "trunk"
+      ]
+    }
+  ],
+  "excludeByPresence": [
+    "railway"
+  ],
+  "excludeByValue": [
+    {
+      "tagName": "highway",
+      "values": [
+        "cycleway",
+        "bridleway",
+        "footway",
+        "pedestrian",
+        "dummy"
+      ]
+    },
+    {
+      "tagName": "disused",
+      "values": [
+        "yes"
+      ]
+    }
+  ]
+}

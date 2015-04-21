@@ -1,60 +1,58 @@
 {
-  comment: 'Use this to include all roads potentially open to motor vehicles',
-  includeByPresence: [
-    'highway'
+  "comment": "Use this to include all roads potentially open to motor vehicles",
+  "includeByPresence": [
+    "highway"
   ],
-  includeByValue: [
+  "includeByValue": [
     {
-      tagName: 'tracktype',
-      values: [
-        'grade1',
-        'grade2',
-        'grade3',
-        'grade4',
-        'grade5'
-      ]   // left out: blanks, 'trocha' (= 'path' or 'shortcut' in Spanish)
+      "tagName": "tracktype",
+      "values": [
+        "grade1",
+        "grade2",
+        "grade3",
+        "grade4",
+        "grade5"
+      ],
+      "comment": "left out: blanks, 'trocha' ('path' or 'shortcut' in Spanish)"
     },
     {
-      tagName: 'surface',
-      values: [
-        'paved',
-        'asphalt',
-        'cobblestone',
-        'cobblestone:flattened',
-        'concrete',
-        'concrete:lanes',
-        'concrete:plates',
-        'paving_stones',
-        'paving_stones:',
-        'metal'
-      ]   // many others left out, but this should just bring in a few features
-          // that got missed with the 'highway' and 'tracktype' tags
+      "tagName": "surface",
+      "values": [
+        "paved",
+        "asphalt",
+        "cobblestone",
+        "cobblestone:flattened",
+        "concrete",
+        "paving_stones",
+        "metal"
+      ],
+      "comment": "many others left out, but this should just bring in a few features that got missed with the 'highway' and 'tracktype' tags"
     },
     {
-      tagName: 'route',
-      values: [
-        'road'
+      "tagName": "route",
+      "values": [
+        "road"
       ]
     }
   ],
-  excludeByPresence: [
-    'railway'
+  "excludeByPresence": [
+    "railway"
   ],
-  excludeByValue: [
+  "excludeByValue": [
     {
-      tagName: 'highway',
-      values: [
-        'cycleway',
-        'bridleway',
-        'footway',
-        'pedestrian',
-        'dummy'
+      "tagName": "highway",
+      "values": [
+        "cycleway",
+        "bridleway",
+        "footway",
+        "pedestrian",
+        "dummy"
       ]
     },
     {
-      tagName: 'disused',
-      values: [
-        'yes'
+      "tagName": "disused",
+      "values": [
+        "yes"
       ]
     }
   ]

@@ -15,6 +15,7 @@ import helpers
 
 # Python includes
 import argparse
+import json
 import os
 import subprocess
 import sys
@@ -79,6 +80,9 @@ def assemble_sql(args):
   geomref = assemble_geom_ref(args)
   
   joincmd, joinfilters = make_join_cmds(args, geomref)
+  
+  if args.taglist is not None:
+    joinfilters += " " + make_tag_filter(args)
 
   sqlcmds = {"lines": "", "points": "", "polygons": ""}
   first = False
@@ -113,10 +117,10 @@ def assemble_sql(args):
 
 
 
-def assemble_geom_ref(args):
 # only add a buffer if necessary, because it slows execution down massively
 # for some reason region exports need an st_buffer call even if the buffer 
 # size is 0
+def assemble_geom_ref(args):
   if args.buffer_radius in ['0', '0.0'] and args.category != 'region':
     return "g.the_geom"
   else:
@@ -159,6 +163,14 @@ def make_join_cmds(args, geomref):
       " as g ON st_intersects(st_transform(d.way,4326), " + geomref + ")"
   )
   return joincmd, joinfilters
+
+
+
+def make_tag_filter(args):
+  with open(args.taglist, 'r') as infile:
+    taglist = json.load(infile)
+    print taglist
+    exit(0)
 
 
 
@@ -328,6 +340,12 @@ def get_CLI_arguments():
       "-pcfn", "--province_country_name", 
       help="name of the country that the province we're subsetting by is in. \
           Required if setting --province_country_field; ignored otherwise.", 
+      nargs='?', default=None
+  )
+  
+  parser.add_argument(
+      "-t", "--taglist",
+      help="JSON file specifying tags to include and/or exclude.",
       nargs='?', default=None
   )
 
