@@ -51,8 +51,13 @@ def export(args):
     else:  # suppress ogr2ogr's output
       with open(os.devnull, 'w') as FNULL:
         subprocess.call(cmd, stdout=FNULL, stderr=subprocess.STDOUT)
+  compress(args)
 
+        
+        
+        
 # Package the output up as a ZIP file, and delete the uncompressed files
+def compress(args):
   if args.verbose:
     helpers.print_with_timestamp("Exports complete. Compressing files.")
   zname = args.outfile + "." + args.output_format + ".zip"
@@ -71,15 +76,57 @@ def export(args):
 
 
 def assemble_sql(args):
-  joincmd = " INNER JOIN " + args.schema + "."
+  geomref = assemble_geom_ref(args)
+  
+  joincmd, joinfilters = make_join_cmds(args, geomref)
 
+  sqlcmds = {"lines": "", "points": "", "polygons": ""}
+  first = False
+  for prefix in args.prefix:
+    # If this is not the first prefix, use UNION to combine:
+    if first:
+      for key in sqlcmds.keys():
+        sqlcmds[key] += " UNION "
+    else:
+      first = True
+    
+    sqlcmds['lines'] += (
+        "SELECT d.* FROM public." + prefix + "line AS d" + 
+        joincmd + joinfilters
+    )
+    sqlcmds['points'] += (
+        "SELECT d.* FROM public." + prefix + "point AS d" + 
+        joincmd + joinfilters
+    )
+    sqlcmds['polygons'] += (
+        "SELECT d.* FROM public." + prefix + "polygon AS d" + joincmd
+    )
+
+# Extra processing to exclude polygons that border the selection area
+    sqlcmds['polygons'] += (
+        " AND NOT st_touches(st_transform(d.way,4326), " + geomref + ")"
+    )
+    sqlcmds['polygons'] += joinfilters
+
+  return sqlcmds
+
+
+
+
+def assemble_geom_ref(args):
 # only add a buffer if necessary, because it slows execution down massively
-# for some reason  region exports need an st_buffer call even if the buffer 
+# for some reason region exports need an st_buffer call even if the buffer 
 # size is 0
   if args.buffer_radius in ['0', '0.0'] and args.category != 'region':
-    geomref = "g.the_geom"
+    return "g.the_geom"
   else:
-    geomref = "st_buffer(g.the_geom," + args.buffer_radius + ")"
+    return "st_buffer(g.the_geom," + args.buffer_radius + ")"
+
+  
+  
+
+def make_join_cmds(args, geomref):
+  joincmd = " INNER JOIN " + args.schema + "."
 
   if args.category == 'region':
     joincmd += args.regions_table
@@ -111,36 +158,9 @@ def assemble_sql(args):
   joincmd += (
       " as g ON st_intersects(st_transform(d.way,4326), " + geomref + ")"
   )
+  return joincmd, joinfilters
 
-  sqlcmds = {"lines": "", "points": "", "polygons": ""}
-  first = False
-  for prefix in args.prefix:
-    # If this is not the first prefix, use UNION to combine:
-    if first:
-      for key in sqlcmds.keys():
-        sqlcmds[key] += " UNION "
-    else:
-      first = True
-    
-    sqlcmds['lines'] += (
-        "SELECT d.* FROM public." + prefix + "line AS d" + 
-        joincmd + joinfilters
-    )
-    sqlcmds['points'] += (
-        "SELECT d.* FROM public." + prefix + "point AS d" + 
-        joincmd + joinfilters
-    )
-    sqlcmds['polygons'] += (
-        "SELECT d.* FROM public." + prefix + "polygon AS d" + joincmd
-    )
 
-# Extra processing to exclude polygons that border the selection area
-    sqlcmds['polygons'] += (
-        " AND NOT st_touches(st_transform(d.way,4326), " + geomref + ")"
-    )
-    sqlcmds['polygons'] += joinfilters
-
-  return sqlcmds
 
 
 
