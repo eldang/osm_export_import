@@ -47,7 +47,6 @@ def export(args):
   for key, cmd in ogrcmds.items():
     if args.verbose:
       helpers.print_with_timestamp("Exporting " + key + ".")
-    if args.verbose:
       subprocess.call(cmd)
     else:  # suppress ogr2ogr's output
       with open(os.devnull, 'w') as FNULL:
