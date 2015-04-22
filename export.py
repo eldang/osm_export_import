@@ -82,7 +82,7 @@ def assemble_sql(args):
   joincmd, joinfilters = make_join_cmds(args, geomref)
   
   if args.taglist is not None:
-    joinfilters += " " + make_tag_filter(args)
+    joinfilters += make_tag_filter(args)
 
   sqlcmds = {"lines": "", "points": "", "polygons": ""}
   first = False
@@ -169,8 +169,89 @@ def make_join_cmds(args, geomref):
 def make_tag_filter(args):
   with open(args.taglist, 'r') as infile:
     taglist = json.load(infile)
-    print taglist
-    exit(0)
+    if args.verbose and 'comment' in taglist:
+      helpers.print_with_timestamp(
+          "Loaded tag set with comment '" + taglist['comment'] + "'."
+      )
+    
+    tagfilter = " AND ( "
+    
+    firstblock = True
+    
+    if "includeByPresence" in taglist:
+      firstblock = False
+      tagfilter += "("
+      firsttag = True
+      for tag in taglist["includeByPresence"]:
+        if firsttag:
+          firsttag = False
+        else:
+          tagfilter += "OR "
+        tagfilter += tag + " IS NOT NULL "
+      tagfilter += ") "
+    
+    if "includeByValue" in taglist:
+      if firstblock:
+        firstblock = False
+      else:
+        tagfilter += "OR "
+      tagfilter += "("
+      firsttag = True
+      for tag in taglist["includeByValue"]:
+        if firsttag:
+          firsttag = False
+        else:
+          tagfilter += "OR "
+        firstval = True
+        for val in tag["values"]:
+          if firstval:
+            firstval = False
+          else:
+            tagfilter += "OR "
+          tagfilter += tag["tagName"] + " ILIKE '%" + val + "%' "
+      tagfilter += ") "
+    
+    if "excludeByPresence" in taglist:
+      if firstblock:
+        firstblock = False
+      else:
+        tagfilter += "AND "
+      tagfilter += "("
+      firsttag = True
+      for tag in taglist["excludeByPresence"]:
+        if firsttag:
+          firsttag = False
+        else:
+          tagfilter += "AND "
+        tagfilter += tag + " IS NULL "
+      tagfilter += ") "
+
+    if "excludeByValue" in taglist:
+      if firstblock:
+        firstblock = False
+      else:
+        tagfilter += "AND NOT "
+      tagfilter += "("
+      firsttag = True
+      for tag in taglist["excludeByValue"]:
+        if firsttag:
+          firsttag = False
+        else:
+          tagfilter += "OR "
+        firstval = True
+        for val in tag["values"]:
+          if firstval:
+            firstval = False
+          else:
+            tagfilter += "OR "
+          tagfilter += tag["tagName"] + " ILIKE '%" + val + "%' "
+      tagfilter += ") "
+      
+    if firstblock:
+      # Then we haven't added any filters
+      return ""
+    else:
+      return tagfilter + ") "
 
 
 
