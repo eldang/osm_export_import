@@ -98,6 +98,7 @@ Without additional arguments, the script will export three Spatialite files for 
 * If exporting a province with a non-unique name, add `-pcfn countryname` to specify which country you want.
 * If calling this from a cron job, you may need to specify the working directory, which you can do with the `-w` option.
 * If for some reason you need to combine geographies from more than one set of imported OSM tables, you can simply turn the `database-prefix` argument into a comma-separated list, like: `./export.py africa,south-america province mwanza malawi-mwanza2 -pcfn malawi -v`.
+* To filter the data being exported by a defined set of tags, use `-t tagset.json`, where `tagset.json` is a file in the format documented with examples in [tagsets/README.md](tagsets).
 
 ### batch_export.py
 
