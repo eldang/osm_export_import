@@ -218,11 +218,7 @@ def filter_by_presence(taglist, tagfilters, exclude):
       if tag in config.available_tags[datatype]:
         if empty:
           empty = False
-          if tagfilters[datatype] != "":
-            tagfilters[datatype] += "AND "
-          if exclude:
-            tagfilters[datatype] += "NOT "
-          tagfilters[datatype] += "("
+          tagfilters[datatype] = start_block(tagfilters[datatype], exclude)
         else:
           tagfilters[datatype] += "OR "
         
@@ -243,11 +239,7 @@ def filter_by_value(taglist, tagfilters, exclude):
       if tag["tagName"] in config.available_tags[datatype]:
         if empty:
           empty = False
-          if tagfilters[datatype] != "":
-            tagfilters[datatype] += "AND "
-          if exclude:
-            tagfilters[datatype] += "NOT "
-          tagfilters[datatype] += "( "
+          tagfilters[datatype] = start_block(tagfilters[datatype], exclude)
         else:
           tagfilters[datatype] += "OR "
         
@@ -266,6 +258,21 @@ def filter_by_value(taglist, tagfilters, exclude):
       tagfilters[datatype] += ") "
   
   return tagfilters
+
+
+
+
+def start_block(filterblock, exclude):
+  if filterblock != "":
+    if exclude:
+      filterblock += "AND "
+    else:
+      filterblock += "OR "
+  if exclude:
+    filterblock += "NOT "
+  filterblock += "("
+  
+  return filterblock
 
 
 
