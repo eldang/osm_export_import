@@ -82,7 +82,9 @@ def assemble_sql(args):
   joincmd, joinfilters = make_join_cmds(args, geomref)
   
   if args.taglist is not None:
-    joinfilters += make_tag_filter(args)
+    tagfilters = make_tag_filters(args)
+  else:
+    tagfilters = {"lines": "", "points": "", "polygons": ""}
 
   sqlcmds = {"lines": "", "points": "", "polygons": ""}
   first = False
@@ -96,11 +98,11 @@ def assemble_sql(args):
     
     sqlcmds['lines'] += (
         "SELECT d.* FROM public." + prefix + "line AS d" + 
-        joincmd + joinfilters
+        joincmd + joinfilters + tagfilters["lines"]
     )
     sqlcmds['points'] += (
         "SELECT d.* FROM public." + prefix + "point AS d" + 
-        joincmd + joinfilters
+        joincmd + joinfilters + tagfilters["points"]
     )
     sqlcmds['polygons'] += (
         "SELECT d.* FROM public." + prefix + "polygon AS d" + joincmd
@@ -110,7 +112,7 @@ def assemble_sql(args):
     sqlcmds['polygons'] += (
         " AND NOT st_touches(st_transform(d.way,4326), " + geomref + ")"
     )
-    sqlcmds['polygons'] += joinfilters
+    sqlcmds['polygons'] += joinfilters + tagfilters["polygons"]
 
   return sqlcmds
 
@@ -166,7 +168,7 @@ def make_join_cmds(args, geomref):
 
 
 
-def make_tag_filter(args):
+def make_tag_filters(args):
   with open(args.taglist, 'r') as infile:
     taglist = json.load(infile)
     if args.verbose and 'comment' in taglist:
@@ -174,85 +176,96 @@ def make_tag_filter(args):
           "Loaded tag set with comment '" + taglist['comment'] + "'."
       )
     
-    tagfilter = " AND ( "
-    
-    firstblock = True
+    tagfilters = {"lines": "", "points": "", "polygons": ""}
     
     if "includeByPresence" in taglist:
-      firstblock = False
-      tagfilter += "("
-      firsttag = True
-      for tag in taglist["includeByPresence"]:
-        if firsttag:
-          firsttag = False
-        else:
-          tagfilter += "OR "
-        tagfilter += tag + " IS NOT NULL "
-      tagfilter += ") "
-    
+      tagfilters = filter_by_presence(
+          taglist["includeByPresence"],
+          tagfilters,
+          exclude=False
+      )
     if "includeByValue" in taglist:
-      if firstblock:
-        firstblock = False
-      else:
-        tagfilter += "OR "
-      tagfilter += "("
-      firsttag = True
-      for tag in taglist["includeByValue"]:
-        if firsttag:
-          firsttag = False
-        else:
-          tagfilter += "OR "
-        firstval = True
-        for val in tag["values"]:
-          if firstval:
-            firstval = False
-          else:
-            tagfilter += "OR "
-          tagfilter += tag["tagName"] + " ILIKE '%" + val + "%' "
-      tagfilter += ") "
-    
+      tagfilters = filter_by_value(
+          taglist["includeByValue"],
+          tagfilters,
+          exclude=False
+      )
     if "excludeByPresence" in taglist:
-      if firstblock:
-        firstblock = False
-      else:
-        tagfilter += "AND "
-      tagfilter += "("
-      firsttag = True
-      for tag in taglist["excludeByPresence"]:
-        if firsttag:
-          firsttag = False
-        else:
-          tagfilter += "AND "
-        tagfilter += tag + " IS NULL "
-      tagfilter += ") "
-
+      tagfilters = filter_by_presence(
+          taglist["excludeByPresence"],
+          tagfilters,
+          exclude=True
+      )
     if "excludeByValue" in taglist:
-      if firstblock:
-        firstblock = False
-      else:
-        tagfilter += "AND NOT "
-      tagfilter += "("
-      firsttag = True
-      for tag in taglist["excludeByValue"]:
-        if firsttag:
-          firsttag = False
+      tagfilters = filter_by_value(
+          taglist["excludeByValue"],
+          tagfilters,
+          exclude=True
+      )
+    
+  for datatype in {"points", "lines", "polygons"}:
+    if tagfilters[datatype] != "":
+      tagfilters[datatype] = "AND (" + tagfilters[datatype] + ") "
+  return tagfilters
+
+    
+    
+    
+def filter_by_presence(taglist, tagfilters, exclude):
+  for datatype in {"points", "lines", "polygons"}:
+    empty = True
+    for tag in taglist:
+      if tag in config.available_tags[datatype]:
+        if empty:
+          empty = False
+          if tagfilters[datatype] != "":
+            tagfilters[datatype] += "AND "
+          if exclude:
+            tagfilters[datatype] += "NOT "
+          tagfilters[datatype] += "("
         else:
-          tagfilter += "OR "
+          tagfilters[datatype] += "OR "
+        
+        tagfilters[datatype] += tag + " IS NOT NULL "
+        
+    if not empty:
+      tagfilters[datatype] += ") "
+  
+  return tagfilters
+
+
+
+
+def filter_by_value(taglist, tagfilters, exclude):
+  for datatype in {"points", "lines", "polygons"}:
+    empty = True
+    for tag in taglist:
+      if tag["tagName"] in config.available_tags[datatype]:
+        if empty:
+          empty = False
+          if tagfilters[datatype] != "":
+            tagfilters[datatype] += "AND "
+          if exclude:
+            tagfilters[datatype] += "NOT "
+          tagfilters[datatype] += "( "
+        else:
+          tagfilters[datatype] += "OR "
+        
         firstval = True
         for val in tag["values"]:
           if firstval:
             firstval = False
+            tagfilters[datatype] += "("
           else:
-            tagfilter += "OR "
-          tagfilter += tag["tagName"] + " ILIKE '%" + val + "%' "
-      tagfilter += ") "
-      
-    if firstblock:
-      # Then we haven't added any filters
-      return ""
-    else:
-      return tagfilter + ") "
-
+            tagfilters[datatype] += "OR "
+            
+          tagfilters[datatype] += tag["tagName"] + " ILIKE '%" + val + "%' "
+        tagfilters[datatype] += ") "
+          
+    if not empty:
+      tagfilters[datatype] += ") "
+  
+  return tagfilters
 
 
 

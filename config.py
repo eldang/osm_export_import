@@ -52,3 +52,33 @@ province_country_field  = 'name_0'          # -pcf or --province_country_field
 # default output format
 # currently implemented options: 'shp' and 'sqlite'
 output_format  = 'sqlite'     # -f or --output_format
+
+# tags available in the different osm2pgsql-generated tables:
+available_tags = {
+    "lines": [
+        "admin_level", "aerialway", "aeroway", "amenity", "area", "barrier", 
+        "bicycle", "bridge", "boundary", "building", "construction", "covered", 
+        "culvert", "cutting", "denomination", "disused", "embankment", "foot", 
+        "generator:source", "harbour", "highway", "historic", "horse", 
+        "intermittent", "junction", "landuse", "leisure", "lock", "man_made", 
+        "military", "motorcar", "natural", "office", "oneway", "place", 
+        "power", "power_source", "public_transport", "railway", "ref", 
+        "religion", "route", "service", "shop", "sport", "surface", "toll", 
+        "tourism", "tower:type", "tracktype", "tunnel", "water", "waterway", 
+        "wetland", "wood"
+    ],
+    "points": [
+        "admin_level", "aerialway", "aeroway", "amenity", "area", "barrier", 
+        "bicycle", "bridge", "boundary", "building", "capital", "construction", 
+        "covered", "culvert", "cutting", "denomination", "disused", 
+        "embankment", "foot", "generator:source", "harbour", "highway", 
+        "historic", "horse", "intermittent", "junction", "landuse", "leisure", 
+        "lock", "man_made", "military", "motorcar", "natural", "office", 
+        "oneway", "place", "poi", "power", "power_source", "public_transport", 
+        "railway", "religion", "route", "service", "shop", "sport", "surface", 
+        "toll", "tourism", "tower:type", "tunnel", "water", "waterway", 
+        "wetland", "wood"
+    ]
+}
+
+available_tags["polygons"] = available_tags["lines"]
