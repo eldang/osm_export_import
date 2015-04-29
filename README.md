@@ -6,7 +6,7 @@ This is a set of scripts to simplify and automate two Open Street Map related pr
 
 **[import.py](#importpy)** is for making a local mirror of one or more geographical areas, and keeping that up to date.
 
-**[export.py](#importpy)** is for exporting subsets of that local mirror, for smaller geographic areas.
+**[export.py](#exportpy)** is for exporting subsets of that local mirror, for smaller geographic areas.
 
 **[batch_export.py](#batch_exportpy)** is for automating the export of many geographic areas at once.
 
