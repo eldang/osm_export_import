@@ -1,0 +1,29 @@
+{
+  "comment": "Use this to include all waterways: natural, artificial, permanent or intermittent, but not pipelines, shorelines or wetlands",
+  "includeByPresence": [
+    "waterway",
+    "water"
+  ],
+  "includeByValue": [
+    {
+      "tagName": "natural",
+      "values": [
+        "water",
+        "wadi",
+        "waterfall"
+      ]
+    },
+    {
+      "tagName": "bridge",
+      "values": [
+        "aqueduct"
+      ]
+    },
+    {
+      "tagName": "landuse",
+      "values": [
+        "reservoir"
+      ]
+    }
+  ]
+}

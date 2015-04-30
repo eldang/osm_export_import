@@ -1,0 +1,6 @@
+{
+  "comment": "Use this to include all boundaries.",
+  "includeByPresence": [
+    "boundary"
+  ]
+}

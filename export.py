@@ -251,7 +251,8 @@ def filter_by_value(taglist, tagfilters, exclude):
           else:
             tagfilters[datatype] += "OR "
             
-          tagfilters[datatype] += tag["tagName"] + " ILIKE '%" + val + "%' "
+          tagfilters[datatype] += '"' + tag["tagName"] + '"' 
+          tagfilters[datatype] += " ILIKE '%" + val + "%' "
         tagfilters[datatype] += ") "
           
     if not empty:

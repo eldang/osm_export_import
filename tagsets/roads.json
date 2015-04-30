@@ -33,6 +33,25 @@
       "values": [
         "road"
       ]
+    },
+    {
+      "tagName": "bridge",
+      "values": [
+        "culvert",
+        "low_water_crossing",
+        "viaduct",
+        "covered",
+        "yes",
+        "suspension",
+        "movable"
+      ]
+    },
+    {
+      "tagName": "tunnel",
+      "values": [
+        "yes",
+        "building_passage"
+      ]
     }
   ],
   "excludeByPresence": [

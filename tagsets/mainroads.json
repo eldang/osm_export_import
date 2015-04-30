@@ -5,7 +5,10 @@
       "tagName": "highway",
       "values": [
         "motorway",
-        "trunk"
+        "trunk",
+        "primary",
+        "secondary",
+        "tertiary"
       ]
     }
   ],

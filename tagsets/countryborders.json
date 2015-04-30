@@ -1,0 +1,35 @@
+{
+  "comment": "Use this to include all national borders (accepted or contested)",
+  "includeByValue": [
+    {
+      "tagName": "boundary",
+      "values": [
+        "administrative",
+        "political",
+        "political_fraction"
+      ]
+    },
+    {
+      "tagName": "admin_level",
+      "values": [
+        "2"
+      ]
+    }
+  ],
+  "excludeByValue": [
+    {
+      "tagName": "admin_level",
+      "values": [
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "11"
+      ]
+    }
+  ]
+}
