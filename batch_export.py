@@ -220,6 +220,11 @@ def get_CLI_arguments():
       nargs='?', default=None
   )
 
+  parser.add_argument(
+      "-t", "--taglist",
+      help="JSON file specifying tags to include and/or exclude.",
+      nargs='?', default=None
+  )
 
   args = parser.parse_args()
   args.prefix = [
