@@ -17,13 +17,13 @@ def print_with_timestamp(msg):
 
 def elapsed_time(starttime):
   seconds = time.time() - starttime
-  if seconds < 1: 
+  if seconds < 1:
     seconds = 1
   hours = int(seconds / 60 / 60)
   minutes = int(seconds / 60 - hours * 60)
   seconds = int(seconds - minutes * 60 - hours * 60 * 60)
   return (
-      str(hours) + " hours, " + 
-      str(minutes) + " minutes and " + 
+      str(hours) + " hours, " +
+      str(minutes) + " minutes and " +
       str(seconds) + " seconds"
   )

@@ -38,9 +38,9 @@ def main():
       "Run complete in " + helpers.elapsed_time(starttime) + "."
   )
 
-  
-  
-  
+
+
+
 def export(args):
   os.chdir(args.working_directory)
   if args.category == "province" and args.province_country_name is not None:
@@ -58,9 +58,9 @@ def export(args):
         subprocess.call(cmd, stdout=FNULL, stderr=subprocess.STDOUT)
   compress(args)
 
-        
-        
-        
+
+
+
 # Package the output up as a ZIP file, and delete the uncompressed files
 def compress(args):
   if args.verbose:
@@ -76,15 +76,15 @@ def compress(args):
         zip.write(fname)
         os.remove(fname)
 
-        
+
 
 
 
 def assemble_sql(args):
   geomref = assemble_geom_ref(args)
-  
+
   joincmd, joinfilters = make_join_cmds(args, geomref)
-  
+
   if args.taglist is not None:
     tagfilters = make_tag_filters(args)
   else:
@@ -99,13 +99,13 @@ def assemble_sql(args):
         sqlcmds[key] += " UNION "
     else:
       first = True
-    
+
     sqlcmds['lines'] += (
-        "SELECT d.* FROM public." + prefix + "line AS d" + 
+        "SELECT d.* FROM public." + prefix + "line AS d" +
         joincmd + joinfilters + tagfilters["lines"]
     )
     sqlcmds['points'] += (
-        "SELECT d.* FROM public." + prefix + "point AS d" + 
+        "SELECT d.* FROM public." + prefix + "point AS d" +
         joincmd + joinfilters + tagfilters["points"]
     )
     sqlcmds['polygons'] += (
@@ -124,7 +124,7 @@ def assemble_sql(args):
 
 
 # only add a buffer if necessary, because it slows execution down massively
-# for some reason region exports need an st_buffer call even if the buffer 
+# for some reason region exports need an st_buffer call even if the buffer
 # size is 0
 def assemble_geom_ref(args):
   if args.buffer_radius in ['0', '0.0'] and args.category != 'region':
@@ -132,8 +132,8 @@ def assemble_geom_ref(args):
   else:
     return "st_buffer(g.the_geom," + args.buffer_radius + ")"
 
-  
-  
+
+
 
 def make_join_cmds(args, geomref):
   joincmd = " INNER JOIN " + args.schema + "."
@@ -155,8 +155,8 @@ def make_join_cmds(args, geomref):
     )
     if args.province_country_name is not None:
       joinfilters = (
-          " AND g." + args.province_country_field + 
-          " ilike '" + args.province_country_name + "'" + 
+          " AND g." + args.province_country_field +
+          " ilike '" + args.province_country_name + "'" +
           joinfilters
       )
   else:
@@ -179,9 +179,9 @@ def make_tag_filters(args):
       helpers.print_with_timestamp(
           "Loaded tag set with comment '" + taglist['comment'] + "'."
       )
-    
+
     tagfilters = {"lines": "", "points": "", "polygons": ""}
-    
+
     if "includeByPresence" in taglist:
       tagfilters = filter_by_presence(
           taglist["includeByPresence"],
@@ -206,15 +206,15 @@ def make_tag_filters(args):
           tagfilters,
           exclude=True
       )
-    
+
   for datatype in {"points", "lines", "polygons"}:
     if tagfilters[datatype] != "":
       tagfilters[datatype] = "AND (" + tagfilters[datatype] + ") "
   return tagfilters
 
-    
-    
-    
+
+
+
 def filter_by_presence(taglist, tagfilters, exclude):
   for datatype in {"points", "lines", "polygons"}:
     empty = True
@@ -225,12 +225,12 @@ def filter_by_presence(taglist, tagfilters, exclude):
           tagfilters[datatype] = start_block(tagfilters[datatype], exclude)
         else:
           tagfilters[datatype] += "OR "
-        
+
         tagfilters[datatype] += tag + " IS NOT NULL "
-        
+
     if not empty:
       tagfilters[datatype] += ") "
-  
+
   return tagfilters
 
 
@@ -246,7 +246,7 @@ def filter_by_value(taglist, tagfilters, exclude):
           tagfilters[datatype] = start_block(tagfilters[datatype], exclude)
         else:
           tagfilters[datatype] += "OR "
-        
+
         firstval = True
         for val in tag["values"]:
           if firstval:
@@ -254,14 +254,14 @@ def filter_by_value(taglist, tagfilters, exclude):
             tagfilters[datatype] += "("
           else:
             tagfilters[datatype] += "OR "
-            
-          tagfilters[datatype] += '"' + tag["tagName"] + '"' 
+
+          tagfilters[datatype] += '"' + tag["tagName"] + '"'
           tagfilters[datatype] += " ILIKE '%" + val + "%' "
         tagfilters[datatype] += ") "
-          
+
     if not empty:
       tagfilters[datatype] += ") "
-  
+
   return tagfilters
 
 
@@ -276,7 +276,7 @@ def start_block(filterblock, exclude):
   if exclude:
     filterblock += "NOT "
   filterblock += "("
-  
+
   return filterblock
 
 
@@ -302,9 +302,9 @@ def assemble_ogr_cmds(args):
 
     ogrcmds[key] += [args.outfile + "_" + key + "." + args.output_format]
     ogrcmds[key] += [
-        'PG:host=' + args.host + 
-        ' user=' + args.user + 
-        ' port=' + args.port + 
+        'PG:host=' + args.host +
+        ' user=' + args.user +
+        ' port=' + args.port +
         ' dbname=' + args.database
     ]
     ogrcmds[key] += ['-sql', sqlcmd]
@@ -319,136 +319,136 @@ def get_CLI_arguments():
 
 # positional arguments
   parser.add_argument(
-      "prefix", 
+      "prefix",
       help="required argument: the region we are exporting subsets from \
       (e.g. 'africa' or 'south-america')",
       metavar="region-name"
   )
   parser.add_argument(
-      "category", 
+      "category",
       help="required argument: the geographic level we're subsetting by. \
-      Either 'region', 'country' or 'province'.", 
+      Either 'region', 'country' or 'province'.",
       metavar="region|country|province"
   )
   parser.add_argument(
-      "subset", 
+      "subset",
       help="required argument: the region we are subsetting to \
-      (e.g. 'kenya' or 'rift valley')", 
+      (e.g. 'kenya' or 'rift valley')",
       metavar="'subregion name'"
   )
   parser.add_argument(
-      "outfile", 
+      "outfile",
       help="required argument: filename stub to save output to \
-      (will have data types & extension added)", 
+      (will have data types & extension added)",
       metavar="filename_with_no_ext"
   )
 
 # optional arguments
   parser.add_argument(
-      "-v", "--verbose", 
+      "-v", "--verbose",
       help="output progress reports while working \
-          (default is " + str(config.verbose) + ")", 
+          (default is " + str(config.verbose) + ")",
       action="store_true"
   )
 
   parser.add_argument(
-      "-H", "--host", 
+      "-H", "--host",
       help="override the default database host, which is currently: \
-          %(default)s", 
+          %(default)s",
       nargs='?', default=config.host, metavar="localhost|URL"
   )
   parser.add_argument(
-      "-p", "--port", 
+      "-p", "--port",
       help="override the default database port, which is currently: \
-          %(default)s", 
+          %(default)s",
       nargs='?', default=config.port
   )
   parser.add_argument(
-      "-u", "--user", 
-      help="override the default database username", 
+      "-u", "--user",
+      help="override the default database username",
       nargs='?', default=config.user
   )
   parser.add_argument(
-      "-d", "--database", 
+      "-d", "--database",
       help="override the default database name, which is currently: \
-          %(default)s", 
+          %(default)s",
       nargs='?', default=config.database
   )
   parser.add_argument(
-      "-w", "--working_directory", 
+      "-w", "--working_directory",
       help="working directory, which defaults to \
           the directory the program is called from \
-          (you'll probably need to set this explicitly in a cron job)", 
+          (you'll probably need to set this explicitly in a cron job)",
       nargs='?', default=os.getcwd()
   )
 
   parser.add_argument(
-      "-f", "--output_format", 
-      help="format for output, which is $(default)s by default", 
+      "-f", "--output_format",
+      help="format for output, which is $(default)s by default",
       nargs='?', default=config.output_format
   )
 
   parser.add_argument(
-      "-b", "--buffer_radius", 
+      "-b", "--buffer_radius",
       help="add a buffer of this many metres beyond the specified subset boundary.\
-      WARNING: SQL queries using this are extremely slow.", 
+      WARNING: SQL queries using this are extremely slow.",
       nargs='?', default=config.buffer_radius
   )
 
   parser.add_argument(
-      "-s", "--schema", 
-      help="database schema where the geographies to subset by are stored", 
+      "-s", "--schema",
+      help="database schema where the geographies to subset by are stored",
       nargs='?', default=config.schema
   )
 
   parser.add_argument(
-      "-rt", "--regions_table", 
+      "-rt", "--regions_table",
       help="database table containing supranational region-level geometries to \
-          subset by", 
+          subset by",
       nargs='?', default=config.regions_table
   )
   parser.add_argument(
-      "-rf", "--region_field", 
-      help="region name field in that table", 
+      "-rf", "--region_field",
+      help="region name field in that table",
       nargs='?', default=config.region_field
   )
 
   parser.add_argument(
-      "-ct", "--countries_table", 
-      help="database table containing country outline geometries to subset by", 
+      "-ct", "--countries_table",
+      help="database table containing country outline geometries to subset by",
       nargs='?', default=config.countries_table
   )
   parser.add_argument(
-      "-cf", "--country_field", 
-      help="country name field in that table", 
+      "-cf", "--country_field",
+      help="country name field in that table",
       nargs='?', default=config.country_field
   )
 
   parser.add_argument(
-      "-pt", "--provinces_table", 
+      "-pt", "--provinces_table",
       help="database table containing subnational state- or province-level \
-          geometries to subset by", 
+          geometries to subset by",
       nargs='?', default=config.provinces_table
   )
   parser.add_argument(
-      "-pf", "--province_field", 
-      help="state/province name field in that table", 
+      "-pf", "--province_field",
+      help="state/province name field in that table",
       nargs='?', default=config.province_field
   )
   parser.add_argument(
-      "-pcf", "--province_country_field", 
+      "-pcf", "--province_country_field",
       help="country name field in that table - \
           this only matters if the province name exists in >1 country \
-          (though this is not an unusual occurence)", 
+          (though this is not an unusual occurence)",
       nargs='?', default=config.province_country_field
   )
   parser.add_argument(
-      "-pcfn", "--province_country_name", 
+      "-pcfn", "--province_country_name",
       help="name of the country that the province we're subsetting by is in. \
-          Required if setting --province_country_field; ignored otherwise.", 
+          Required if setting --province_country_field; ignored otherwise.",
       nargs='?', default=None
   )
-  
+
   parser.add_argument(
       "-t", "--taglist",
       help="JSON file specifying tags to include and/or exclude.",
@@ -457,7 +457,7 @@ def get_CLI_arguments():
 
   args = parser.parse_args()
   args.prefix = [
-      x.replace('/', '_').replace('-', '_') + "_" 
+      x.replace('/', '_').replace('-', '_') + "_"
       for x in args.prefix.split(',')
   ]
   args.port = str(args.port)

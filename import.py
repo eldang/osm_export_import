@@ -17,7 +17,7 @@ import helpers
 import argparse
 from bs4 import BeautifulSoup  # HTML parser: pip install beautifulsoup4
 import os
-import psycopg2                # PostgreSQL interface: 
+import psycopg2                # PostgreSQL interface:
 #                                 http://initd.org/psycopg/docs/
 import requests                # HTTP interface: pip install requests
 import subprocess
@@ -36,7 +36,7 @@ def main():
   helpers.print_with_timestamp("Starting run.")
   os.chdir(args.working_directory)
 
-# Step through requested regions, 
+# Step through requested regions,
 # either kicking off fresh imports or looking for changesets
   for region in args.regions:
     if os.path.isdir(region):
@@ -58,9 +58,9 @@ def main():
           "Calling VACUUM FULL for final database housekeeping."
       )
     with psycopg2.connect(
-        host=args.host, 
-        port=args.port, 
-        database=args.database, 
+        host=args.host,
+        port=args.port,
+        database=args.database,
         user=args.user
     ) as conn:
       conn.set_session(autocommit=True)  # needed for VACUUM call
@@ -99,7 +99,7 @@ def fresh_import(region, args):
       "-p", region.replace('/', '_').replace('-', '_'),
       "-K", "-s", "-x", "-G", "-r", "pbf"
   ]
-  if args.verbose: 
+  if args.verbose:
     import_cmd += ["-v"]
   import_cmd += ["mapdata.osm.pbf"]
   if args.verbose:
@@ -111,7 +111,7 @@ def fresh_import(region, args):
   os.remove('mapdata.osm.pbf')
   os.chdir(args.working_directory)
   helpers.print_with_timestamp("Initial import of " + region + " complete.")
-# Immediately call update_import() in case another changelist dropped while 
+# Immediately call update_import() in case another changelist dropped while
 # we were downloading
   args = update_import(region, args)
   return args
@@ -145,11 +145,11 @@ def update_import(region, args):
         for chunk in r.iter_content(10):
           outfile.write(chunk)
 # Unzip it (-f to force overwriting of any previous changeset.osc left around)
-      if args.verbose: 
+      if args.verbose:
         helpers.print_with_timestamp("Changeset downloaded. Unpacking.")
       subprocess.call(['gunzip', '-f', 'changeset.osc.gz'])
 # Call osm2pgsql to apply it
-      if args.verbose: 
+      if args.verbose:
         helpers.print_with_timestamp("Unpacked. Now calling osm2pgsql")
       update_cmd = [
           args.osm2pgsql_path, "-a", "-H", args.host, "-P", str(args.port),
@@ -157,7 +157,7 @@ def update_import(region, args):
           "-p", prefix,
           "-K", "-s", "-x", "-G"
       ]
-      if args.verbose: 
+      if args.verbose:
         update_cmd += ["-v"]
       update_cmd += ["changeset.osc"]
       if args.verbose:
@@ -188,8 +188,8 @@ def update_import(region, args):
 
   os.chdir(args.working_directory)
   helpers.print_with_timestamp(
-      "Applied " + 
-      str(applied_changelists) + " change lists to " + 
+      "Applied " +
+      str(applied_changelists) + " change lists to " +
       region + " data."
   )
   return args
@@ -205,9 +205,9 @@ def dbcleanup(args, prefix):
         "Pruning database nodes orphaned by recent updates."
     )
   with psycopg2.connect(
-      host=args.host, 
-      port=args.port, 
-      database=args.database, 
+      host=args.host,
+      port=args.port,
+      database=args.database,
       user=args.user
   ) as conn:
     with conn.cursor() as cur:
@@ -239,59 +239,59 @@ def get_CLI_arguments():
 
 # positional arguments
   parser.add_argument(
-      "regions", 
+      "regions",
       help="required argument: a list of regions to import, \
-          e.g. antarctica,australia-oceania/fiji", 
+          e.g. antarctica,australia-oceania/fiji",
       metavar="region1,region2/subregion2"
   )
 
 # optional arguments
   parser.add_argument(
-      "-v", "--verbose", 
+      "-v", "--verbose",
       help="output progress reports while working \
-          (default is " + str(config.verbose) + ")", 
+          (default is " + str(config.verbose) + ")",
       action="store_true"
   )
   parser.add_argument(
-      "-H", "--host", 
+      "-H", "--host",
       help="override the default database host, which is currently: \
-          %(default)s", 
+          %(default)s",
       nargs='?', default=config.host, metavar="localhost|URL"
   )
   parser.add_argument(
-      "-p", "--port", 
+      "-p", "--port",
       help="override the default database port, which is currently: \
-          %(default)s", 
+          %(default)s",
       nargs='?', default=config.port
   )
   parser.add_argument(
-      "-u", "--user", 
-      help="override the default database username", 
+      "-u", "--user",
+      help="override the default database username",
       nargs='?', default=config.user
   )
   parser.add_argument(
-      "-d", "--database", 
+      "-d", "--database",
       help="override the default database name, which is currently: \
-          %(default)s", 
+          %(default)s",
       nargs='?', default=config.database
   )
   parser.add_argument(
-      "-w", "--working_directory", 
+      "-w", "--working_directory",
       help="working directory, which defaults to \
           the directory the program is called from \
-          (you'll probably need to set this explicitly in a cron job)", 
+          (you'll probably need to set this explicitly in a cron job)",
       nargs='?', default=os.getcwd()
   )
   parser.add_argument(
-      "-c", "--clean_interval", 
+      "-c", "--clean_interval",
       help="after applying this many changesets, \
-          do the periodic database cleaning", 
+          do the periodic database cleaning",
       nargs='?', default=config.clean_interval
   )
   parser.add_argument(
-      "-o", "--osm2pgsql_path", 
+      "-o", "--osm2pgsql_path",
       help="full path to the osm2pgsql command as installed on your system \
-          (you may need to specify this for cron jobs)", 
+          (you may need to specify this for cron jobs)",
       nargs='?', default="osm2pgsql"
   )
 
