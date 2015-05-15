@@ -44,9 +44,10 @@ def main():
 def export(args):
   os.chdir(args.working_directory)
   if args.category == "province" and args.province_country_name is not None:
-    if not os.path.isdir(args.province_country_name):
-      os.mkdir(args.province_country_name)
-    os.chdir(args.province_country_name)
+    dirname = args.province_country_name.lower()
+    if not os.path.isdir(dirname):
+      os.mkdir(dirname)
+    os.chdir(dirname)
 # Call ogr2ogr to produce the output files
   ogrcmds = assemble_ogr_cmds(args)
   for key, cmd in ogrcmds.items():
