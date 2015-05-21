@@ -118,7 +118,8 @@ def assemble_sql(args):
       sqlcmds['polygons'] += (
           " AND NOT st_touches(st_transform(d.way,4326), " + geomref + ")"
       )
-      sqlcmds['polygons'] += joinfilters + tagfilters["polygons"]
+    
+    sqlcmds['polygons'] += joinfilters + tagfilters["polygons"]
 
   return sqlcmds
 
