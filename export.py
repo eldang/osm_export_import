@@ -114,10 +114,11 @@ def assemble_sql(args):
     )
 
 # Extra processing to exclude polygons that border the selection area
-    sqlcmds['polygons'] += (
-        " AND NOT st_touches(st_transform(d.way,4326), " + geomref + ")"
-    )
-    sqlcmds['polygons'] += joinfilters + tagfilters["polygons"]
+    if joinfilters != " ":
+      sqlcmds['polygons'] += (
+          " AND NOT st_touches(st_transform(d.way,4326), " + geomref + ")"
+      )
+      sqlcmds['polygons'] += joinfilters + tagfilters["polygons"]
 
   return sqlcmds
 
@@ -137,6 +138,9 @@ def assemble_geom_ref(args):
 
 
 def make_join_cmds(args, geomref):
+  if args.category == "all":
+    return " WHERE osm_id IS NOT NULL", " "
+
   joincmd = " INNER JOIN " + args.schema + "."
 
   if args.category == 'region':

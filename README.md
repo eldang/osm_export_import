@@ -85,7 +85,7 @@ When making a fresh import, the script also creates a local directory with the s
 Where:
 
 * `database-prefix` is the prefix created by `import.py`, e.g. `africa` or `south-america`
-* `adminlevel` is one of `region`, `country` or `province`
+* `adminlevel` is one of `region`, `country`, `province` or `all`, where `all` does no geographical filtering.
 * `'subregion name'` is the name or ID of the region, country or province we are filtering by. It is case insensitive and only needs to be in quotes if it contains a space.
 * `filename_with_no_extension` is the filename you want output stored in.
 
