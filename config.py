@@ -8,9 +8,9 @@ __name__ = "config"
 
 # ### shared server config
 host        = "localhost"      # -H or --host
-port        = 5433             # -p or --port ; 5432 is the postgresql default
-database    = "osm_africa"     # -d or --database
-user        = "postgres"       # -u or --user
+port        = 5432             # -p or --port ; 5432 is the postgresql default
+database    = "osmextracts"    # -d or --database
+user        = "eldan"          # -u or --user
 # password has to either be entered manually or stored in .pgpass
 # unfortunately, osm2pgsql doesn't seem to have a way to specify schemas, so 
 # we'll always be creating tables in the public scheme
@@ -33,7 +33,7 @@ clean_interval = 5            # -c or --clean_interval
 # ## Export-only:
 # schema in which the geographies by which to subset are stored
 # NB: this does NOT control where map data is imported to. See above for why.
-schema      = 'ccrp'           # -s or --schema
+schema      = 'public'         # -s or --schema
 
 # how far beyond the specified boundaries to go (in metres)
 buffer_radius  = 0             # -b or --buffer_radius
