@@ -18,23 +18,9 @@ A PostGIS database already set up, with [hstore](https://wiki.openstreetmap.org/
 
 The [osm2pgsql](https://wiki.openstreetmap.org/wiki/Osm2pgsql) and [ogr2ogr](http://www.gdal.org/ogr2ogr.html) tools (the latter is easiest to install as part of the [GDAL](https://trac.osgeo.org/gdal/wiki/DownloadingGdalBinaries) package). These scripts are really just a wrapper around those utilities.
 
-The following Python modules:
+The Python modules in [requirements.txt](requirements.txt) (`pip install -r requirements.txt`)
 
-```python
-argparse
-bs4    # HTML parser: pip install beautifulsoup4
-os
-psycopg2    # PostgreSQL interface: http://initd.org/psycopg/docs/
-requests    # HTTP interface: pip install requests
-subprocess
-sys
-time
-zipfile
-```
-
-All the ones without a comment about installation or documentation are normally part of a default Python install.
-
-You will also need to set up a [.pgpass file](http://www.postgresql.org/docs/9.1/static/libpq-pgpass.html) as the scripts themselves neither store nor prompt for passwords.
+You may also need to set up a [.pgpass file](http://www.postgresql.org/docs/9.1/static/libpq-pgpass.html) as the scripts themselves neither store nor prompt for passwords.
 
 ## Usage
 
