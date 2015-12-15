@@ -1,0 +1,35 @@
+{
+  "comment": "Boundaries: admin-level=8 only. See https://wiki.openstreetmap.org/wiki/Tag:boundary%3Dadministrative#admin_level for details per country.",
+  "includeByValue": [
+    {
+      "tagName": "boundary",
+      "values": [
+        "administrative",
+        "political",
+        "political_fraction"
+      ]
+    },
+    {
+      "tagName": "admin_level",
+      "values": [
+        "8"
+      ]
+    }
+  ],
+  "excludeByValue": [
+    {
+      "tagName": "admin_level",
+      "values": [
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "9",
+        "10",
+        "11"
+      ]
+    }
+  ]
+}
