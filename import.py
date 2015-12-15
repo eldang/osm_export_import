@@ -83,7 +83,7 @@ def fresh_import(region, args):
       "http://download.geofabrik.de/" + region + "-updates/000/000/"
   )
   r = requests.get(changeset_dir)
-  latest = BeautifulSoup(r.text).find_all('a')[-1].get('href').split('.')[0]
+  latest = BeautifulSoup(r.text, "lxml").find_all('a')[-1].get('href').split('.')[0]
   with open('latest_changeset.txt', 'w') as outfile:
     outfile.write(latest)
 # Download the .pbf file
@@ -132,7 +132,7 @@ def update_import(region, args):
       "http://download.geofabrik.de/" + region.rstrip("/") + "-updates/000/000/"
   )
   r = requests.get(changeset_dir)
-  urls = BeautifulSoup(r.text).find_all('a')
+  urls = BeautifulSoup(r.text, "lxml").find_all('a')
   for url in urls:
     urlparts = url.get('href').split('.')
     if urlparts[-1] == 'gz' and urlparts[0] > latest:
