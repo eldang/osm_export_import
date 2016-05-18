@@ -129,7 +129,7 @@ def update_import(region, args):
 
 # Go through every changeset since that one:
   changeset_dir = (
-      "http://download.geofabrik.de/" + region.rstrip("/") + "-updates/000/000/"
+      "http://download.geofabrik.de/" + region.rstrip("/") + "-updates/000/001/"
   )
   r = requests.get(changeset_dir)
   urls = BeautifulSoup(r.text, "lxml").find_all('a')
