@@ -18,7 +18,7 @@ import argparse
 from bs4 import BeautifulSoup  # HTML parser: pip install beautifulsoup4
 import os
 import psycopg2                # PostgreSQL interface:
-#                                 http://initd.org/psycopg/docs/
+#                                http://initd.org/psycopg/docs/
 import requests                # HTTP interface: pip install requests
 import subprocess
 import sys
@@ -213,20 +213,20 @@ def dbcleanup(args, prefix):
     with conn.cursor() as cur:
       prefix += '_'
       cur.execute(
-          "DELETE FROM " + prefix + "ways AS w \
-          WHERE 0 = (SELECT COUNT(1) FROM " + prefix + "nodes AS n \
+          "DELETE FROM " + config.schema + "." + prefix + "ways AS w \
+          WHERE 0 = (SELECT COUNT(1) FROM " + config.schema + "." + prefix + "nodes AS n \
           WHERE n.id = ANY(w.nodes));"
       )
       cur.execute(
           "DELETE FROM " + prefix + "rels AS r \
-          WHERE 0 = (SELECT COUNT(1) FROM " + prefix + "nodes AS n \
+          WHERE 0 = (SELECT COUNT(1) FROM " + config.schema + "." + prefix + "nodes AS n \
           WHERE n.id = ANY(r.parts)) \
-          AND 0 = (SELECT COUNT(1) FROM " + prefix + "ways AS w \
+          AND 0 = (SELECT COUNT(1) FROM " + config.schema + "." + prefix + "ways AS w \
           WHERE w.id = ANY(r.parts));"
       )
-      cur.execute("REINDEX TABLE " + prefix + "ways;")
-      cur.execute("REINDEX TABLE " + prefix + "rels;")
-      cur.execute("REINDEX TABLE " + prefix + "nodes;")
+      cur.execute("REINDEX TABLE " + config.schema + "." + prefix + "ways;")
+      cur.execute("REINDEX TABLE " + config.schema + "." + prefix + "rels;")
+      cur.execute("REINDEX TABLE " + config.schema + "." + prefix + "nodes;")
 
 
 
