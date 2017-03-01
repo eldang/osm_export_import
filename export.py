@@ -102,15 +102,15 @@ def assemble_sql(args):
       first = True
 
     sqlcmds['lines'] += (
-        "SELECT d.* FROM public." + prefix + "line AS d" +
+        "SELECT d.* FROM " + args.schema + "." + prefix + "line AS d" +
         joincmd + joinfilters + tagfilters["lines"]
     )
     sqlcmds['points'] += (
-        "SELECT d.* FROM public." + prefix + "point AS d" +
+        "SELECT d.* FROM " + args.schema + "." + prefix + "point AS d" +
         joincmd + joinfilters + tagfilters["points"]
     )
     sqlcmds['polygons'] += (
-        "SELECT d.* FROM public." + prefix + "polygon AS d" + joincmd
+        "SELECT d.* FROM " + args.schema + "." + prefix + "polygon AS d" + joincmd
     )
 
 # Extra processing to exclude polygons that border the selection area
@@ -118,7 +118,7 @@ def assemble_sql(args):
       sqlcmds['polygons'] += (
           " AND NOT st_touches(st_transform(d.way,4326), " + geomref + ")"
       )
-    
+
     sqlcmds['polygons'] += joinfilters + tagfilters["polygons"]
 
   return sqlcmds
